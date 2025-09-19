@@ -1,0 +1,87 @@
+
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      
+      <!-- Sidebar -->
+      <div class="col-lg-3 mb-4">
+        <div class="card shadow-sm rounded-4 p-3 text-center">
+          <img src="/images/user-avatar.png" alt="User Avatar" class="rounded-circle mb-3" width="120" height="120">
+          <h4><%= user.name %></h4>
+          <p class="text-muted"><%= user.email %></p>
+          <a href="/logout" class="btn btn-danger w-100">Logout</a>
+        </div>
+      </div>
+
+      <!-- Main Dashboard -->
+      <div class="col-lg-9">
+        
+        <!-- Booking History -->
+        <div class="card shadow-sm rounded-4 p-4 mb-4">
+          <h5 class="mb-3">📖 Booking History</h5>
+          <% if (user.bookings && user.bookings.length > 0) { %>
+            <ul class="list-group">
+              <% user.bookings.forEach(b => { %>
+                <li class="list-group-item d-flex justify-content-between">
+                  <div>
+                    <strong><%= b.hotel || b.travel %></strong><br>
+                    <small class="text-muted"><%= b.date %></small>
+                  </div>
+                  <span class="badge bg-primary">Confirmed</span>
+                </li>
+              <% }) %>
+            </ul>
+          <% } else { %>
+            <p class="text-muted">No bookings yet.</p>
+          <% } %>
+        </div>
+
+        <!-- Reviews -->
+        <div class="card shadow-sm rounded-4 p-4 mb-4">
+          <h5 class="mb-3">⭐ My Reviews</h5>
+          <% if (user.reviews && user.reviews.length > 0) { %>
+            <% user.reviews.forEach(r => { %>
+              <div class="mb-3">
+                <strong><%= r.hotel || r.travel %></strong>
+                <p>"<%= r.comment %>"</p>
+                <span class="badge bg-warning text-dark"><%= r.rating %> ★</span>
+              </div>
+              <hr>
+            <% }) %>
+          <% } else { %>
+            <p class="text-muted">You haven’t written any reviews yet.</p>
+          <% } %>
+        </div>
+
+        <!-- Saved Trips -->
+        <div class="card shadow-sm rounded-4 p-4 mb-4">
+          <h5 class="mb-3">❤️ Saved Hotels & Trips</h5>
+          <% if (user.saved && user.saved.length > 0) { %>
+            <div class="row">
+              <% user.saved.forEach(s => { %>
+                <div class="col-md-4 mb-3">
+                  <div class="card shadow-sm">
+                    <img src="<%= s.image || '/images/hotel-placeholder.jpg' %>" class="card-img-top">
+                    <div class="card-body">
+                      <h6 class="card-title"><%= s.name %></h6>
+                      <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="text-muted">No saved trips yet.</p>
+          <% } %>
+        </div>
+
+        <!-- Settings -->
+        <div class="card shadow-sm rounded-4 p-4">
+          <h5 class="mb-3">⚙️ Account Settings</h5>
+          <a href="/profile/edit" class="btn btn-outline-primary">Edit Profile</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

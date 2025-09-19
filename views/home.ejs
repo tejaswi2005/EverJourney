@@ -1,0 +1,259 @@
+<!-- Hero Section -->
+<section class="hero position-relative d-flex align-items-center justify-content-center text-center text-white"
+  style="height: calc(100vh - 70px);">
+  <!-- Dark Overlay -->
+  <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100"
+    style="background: rgba(0,0,0,0.5); z-index: 1;"></div>
+
+  <!-- Background Image -->
+  <img src="/images/hero-bg.jpg" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
+    alt="Travel Background" style="z-index:0;">
+
+  <!-- Hero Content -->
+  <div class="container position-relative z-2">
+    <h1 class="display-4 fw-bold">Your Journey Begins with EverJourney</h1>
+    <p class="lead">Hotels, Travels & Exclusive Packages — All in One Place</p>
+
+    <!-- Booking Search Tabs -->
+    <div class="search-box bg-white shadow rounded-3 p-3 p-md-4">
+      <ul class="nav nav-pills mb-3 justify-content-center" id="bookingTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" id="bus-tab" data-bs-toggle="pill"
+            data-bs-target="#bus">Bus</button></li>
+        <li class="nav-item"><button class="nav-link" id="stays-tab" data-bs-toggle="pill"
+            data-bs-target="#stays">Hotels</button></li>
+        <li class="nav-item"><button class="nav-link" id="cabs-tab" data-bs-toggle="pill"
+            data-bs-target="#cabs">Cabs</button></li>
+        <li class="nav-item"><button class="nav-link" id="packages-tab" data-bs-toggle="pill"
+            data-bs-target="#packages">Packages</button></li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- Bus Booking -->
+        <div class="tab-pane fade show active" id="bus">
+          <form action="/buses" method="GET" class="row g-2">
+            <div class="col-md-3"><input type="text" name="from" class="form-control" placeholder="From"></div>
+            <div class="col-md-3"><input type="text" name="to" class="form-control" placeholder="To"></div>
+            <div class="col-md-3"><input type="date" name="date" class="form-control"></div>
+            <div class="col-md-3"><button class="btn btn-danger w-100">Search Buses</button></div>
+          </form>
+        </div>
+
+        <!-- Hotels -->
+        <div class="tab-pane fade" id="stays">
+          <form action="/hotels" method="GET" class="row g-2">
+            <div class="col-md-4"><input type="text" name="q" class="form-control" placeholder="Enter city / hotel">
+            </div>
+            <div class="col-md-2"><input type="date" name="checkin" class="form-control"></div>
+            <div class="col-md-2"><input type="date" name="checkout" class="form-control"></div>
+            <div class="col-md-2"><select name="guests" class="form-select">
+                <option>1 Guest</option>
+                <option selected>2 Guests</option>
+                <option>3 Guests</option>
+              </select></div>
+            <div class="col-md-2"><button class="btn btn-danger w-100">Search</button></div>
+          </form>
+        </div>
+
+        <!-- Cabs -->
+        <div class="tab-pane fade" id="cabs">
+          <form action="/cabs" method="GET" class="row g-2">
+            <div class="col-md-4"><input type="text" name="pickup" class="form-control" placeholder="Pickup Location">
+            </div>
+            <div class="col-md-4"><input type="text" name="drop" class="form-control" placeholder="Drop Location"></div>
+            <div class="col-md-2"><input type="date" name="date" class="form-control"></div>
+            <div class="col-md-2"><button class="btn btn-danger w-100">Search</button></div>
+          </form>
+        </div>
+
+        <!-- Packages -->
+        <div class="tab-pane fade" id="packages">
+          <form action="/packages" method="GET" class="row g-2">
+            <div class="col-md-6"><input type="text" name="destination" class="form-control" placeholder="Destination">
+            </div>
+            <div class="col-md-4"><input type="date" name="date" class="form-control"></div>
+            <div class="col-md-2"><button class="btn btn-danger w-100">Search</button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+</section>
+
+
+
+<!-- Explore India -->
+<section class="py-5">
+  <div class="container text-center">
+    <h2 class="mb-4">Explore India with EverJourney</h2>
+    <p class="lead">Discover the best hotels, unique stays, and travel experiences across the country.</p>
+    <div class="row g-4 mt-4 justify-content-center">
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+          <img src="/images/goa.jpg" class="card-img-top img-fluid fixed-img" alt="Goa">
+          <div class="card-body p-2">
+            <h6 class="card-title mt-2 mb-0">Goa</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+          <img src="/images/delhi.jpg" class="card-img-top img-fluid fixed-img" alt="Delhi">
+          <div class="card-body p-2">
+            <h6 class="card-title mt-2 mb-0">Delhi</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+          <img src="/images/jaipur.jpg" class="card-img-top img-fluid fixed-img" alt="Jaipur">
+          <div class="card-body p-2">
+            <h6 class="card-title mt-2 mb-0">Jaipur</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+          <img src="/images/mumbai.jpg" class="card-img-top img-fluid fixed-img" alt="Mumbai">
+          <div class="card-body p-2">
+            <h6 class="card-title mt-2 mb-0">Mumbai</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Popular Hotels -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-4">Popular Hotels & Stays</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <img src="/images/hotel1.jpg" class="card-img-top" alt="Hotel">
+          <div class="card-body">
+            <h5 class="card-title">Ocean View Resort</h5>
+            <p>Goa, India • ⭐⭐⭐⭐</p>
+            <p class="fw-bold">₹3500 / night</p>
+            <a href="#" class="btn btn-primary w-100">Book Now</a>
+          </div>
+        </div>
+      </div>
+      <!-- Repeat for more hotels -->
+    </div>
+  </div>
+</section>
+
+<!-- Cabs -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Available Cabs</h2>
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm p-3">
+          <i class="fas fa-car-side fa-3x text-primary mb-3"></i>
+          <h5>Sedan</h5>
+          <p>₹12/km</p>
+          <a href="#" class="btn btn-outline-primary">Book</a>
+        </div>
+      </div>
+      <!-- Repeat for SUV, Tempo, Luxury -->
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="py-5 bg-light">
+  <div class="container text-center">
+    <h2 class="mb-5">Why Choose EverJourney?</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+        <h5>Secure Bookings</h5>
+        <p>All transactions are safe and encrypted.</p>
+      </div>
+      <div class="col-md-4">
+        <i class="fas fa-headset fa-3x text-success mb-3"></i>
+        <h5>24/7 Support</h5>
+        <p>Always here to help you.</p>
+      </div>
+      <div class="col-md-4">
+        <i class="fas fa-tags fa-3x text-warning mb-3"></i>
+        <h5>Best Deals</h5>
+        <p>Save more with exclusive offers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Top Routes -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Top Travel Routes</h2>
+    <div class="row g-4 text-center">
+      <div class="col-md-3">
+        <div class="p-3 border rounded">Mumbai → Goa</div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-3 border rounded">Delhi → Jaipur</div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-3 border rounded">Bangalore → Mysore</div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-3 border rounded">Chennai → Pondicherry</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Super Offers -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-4">Super Travel Deals</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <img src="/images/beachResort.jpg" class="card-img-top" alt="Deal">
+          <div class="card-body">
+            <h5 class="card-title">Goa Beach Package</h5>
+            <p>3 Nights + Flight + Hotel</p>
+            <p class="fw-bold">₹12,999 / person</p>
+            <a href="#" class="btn btn-success w-100">Explore</a>
+          </div>
+        </div>
+      </div>
+      <!-- Repeat -->
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">FAQs About EverJourney</h2>
+    <div class="accordion" id="faqAccordion">
+      <% if (queries && queries.length) { %>
+        <% queries.forEach((faq, index) => { %>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button <%= index !== 0 ? 'collapsed' : '' %>" 
+                      type="button" data-bs-toggle="collapse" data-bs-target="#faq<%= index %>">
+                <%= faq.question %>
+              </button>
+            </h2>
+            <div id="faq<%= index %>" class="accordion-collapse collapse <%= index === 0 ? 'show' : '' %>" 
+                 data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                <%= faq.answer %>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p class="text-center">No FAQs available at the moment.</p>
+      <% } %>
+    </div>
+  </div>
+</section>
+

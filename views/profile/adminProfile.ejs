@@ -1,0 +1,67 @@
+
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      
+      <!-- Sidebar -->
+      <div class="col-lg-3 mb-4">
+        <div class="card shadow-sm rounded-4 p-3 text-center">
+          <img src="/images/admin-avatar.png" alt="Admin Avatar" class="rounded-circle mb-3" width="120" height="120">
+          <h4><%= admin.name %></h4>
+          <p class="text-muted"><%= admin.email %></p>
+          <span class="badge bg-primary">Admin</span>
+          <a href="/logout" class="btn btn-danger w-100 mt-2">Logout</a>
+        </div>
+      </div>
+
+      <!-- Main Dashboard -->
+      <div class="col-lg-9">
+        
+        <!-- Quick Actions -->
+        <div class="card shadow-sm rounded-4 p-4 mb-4">
+          <h5 class="mb-3">🚀 Quick Actions</h5>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="/admin/create-hotel" class="btn btn-primary">+ Add Hotel</a>
+            <a href="/admin/create-travel" class="btn btn-primary">+ Add Travel Package</a>
+            <a href="/admin/manage-bookings" class="btn btn-outline-primary">Manage Bookings</a>
+            <a href="/admin/manage-users" class="btn btn-outline-primary">Manage Users</a>
+          </div>
+        </div>
+
+        <!-- Analytics -->
+        <div class="card shadow-sm rounded-4 p-4 mb-4">
+          <h5 class="mb-3">📊 Site Analytics</h5>
+          <div class="row text-center">
+            <div class="col-md-3">
+              <h3>152</h3>
+              <p class="text-muted">Bookings</p>
+            </div>
+            <div class="col-md-3">
+              <h3>28</h3>
+              <p class="text-muted">Hotels</p>
+            </div>
+            <div class="col-md-3">
+              <h3>46</h3>
+              <p class="text-muted">Travel Packages</p>
+            </div>
+            <div class="col-md-3">
+              <h3>320</h3>
+              <p class="text-muted">Users</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card shadow-sm rounded-4 p-4 mb-4">
+          <h5 class="mb-3">📝 Recent Activity</h5>
+          <ul class="list-group">
+            <li class="list-group-item">New booking confirmed for "Taj Palace, Delhi"</li>
+            <li class="list-group-item">User John left a 5★ review for "Goa Beach Resort"</li>
+            <li class="list-group-item">Admin added "Manali Adventure Package"</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,65 @@
+/* General Styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Navbar */
+.navbar {
+  transition: all 0.3s ease-in-out;
+}
+.navbar.scrolled {
+  background-color: rgba(255,255,255,0.95);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Hero Section */
+.hero {
+  background: url('/images/homeImage.jpg') center/cover no-repeat;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  color: white;
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+}
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+}
+.hero p {
+  font-size: 1.2rem;
+}
+
+/* Search Box */
+.search-box {
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  animation: fadeInUp 0.8s ease;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+
+/* Make all images same height and cover the card */
+.fixed-img {
+  height: 200px; /* adjust as needed */
+  width: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+/* Optional: center the text */
+.card-title {
+  text-align: center;
+  font-weight: 500;
+}
