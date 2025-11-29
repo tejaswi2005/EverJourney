@@ -1,0 +1,569 @@
+<!-- views/support.ejs -->
+<style>
+  .support-hero {
+    padding: 3rem 0 2rem;
+    background: linear-gradient(135deg, #e3f2ff, #f5f7ff);
+  }
+  .support-hero h1 {
+    font-weight: 700;
+  }
+  .support-hero .badge {
+    font-size: .75rem;
+  }
+
+  .support-layout {
+    padding: 2rem 0 3rem;
+  }
+
+  .support-card {
+    border-radius: .75rem;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+  }
+  .support-card-header {
+    border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  }
+
+  .support-topic-card {
+    border-radius: .75rem;
+    border: 1px solid rgba(209, 213, 219, .7);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    cursor: pointer;
+  }
+  .support-topic-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 35px rgba(15, 23, 42, 0.12);
+    border-color: #2563eb;
+  }
+
+  .support-icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff6ff;
+    font-size: 1.2rem;
+  }
+
+  .support-contact-pill {
+    border-radius: 999px;
+    padding: .35rem .75rem;
+    background: #eff6ff;
+    font-size: .8rem;
+  }
+
+  .support-pill {
+    border-radius: 999px;
+    background: #f9fafb;
+    padding: .25rem .7rem;
+    font-size: .8rem;
+  }
+
+  .faq-header button {
+    font-weight: 500;
+  }
+
+  .support-subtle {
+    font-size: .85rem;
+    color: #6b7280;
+  }
+
+  .required-star {
+    color: #ef4444;
+  }
+
+  @media (max-width: 767.98px) {
+    .support-layout {
+      padding: 1.5rem 0 2.5rem;
+    }
+  }
+</style>
+
+<div class="support-hero">
+  <div class="container">
+    <div class="row align-items-center g-3">
+      <div class="col-md-8">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge rounded-pill bg-primary-subtle text-primary">
+            Support Center
+          </span>
+          <span class="support-subtle">
+            Need help with a booking, payment or vendor account?
+          </span>
+        </div>
+        <h1 class="display-6 mb-2">We’re here to help with your journey</h1>
+        <p class="mb-3 text-muted">
+          Find quick answers, manage booking issues, or raise a support request for
+          <strong>hotel bookings</strong>, <strong>transport tickets</strong>, payments, refunds, and vendor onboarding.
+        </p>
+
+        <div class="d-flex flex-wrap gap-2">
+          <span class="support-pill">
+            <i class="bi bi-calendar-check me-1"></i>
+            Hotel & stay bookings
+          </span>
+          <span class="support-pill">
+            <i class="bi bi-bus-front me-1"></i>
+            Bus / Train / Cab routes
+          </span>
+          <span class="support-pill">
+            <i class="bi bi-credit-card me-1"></i>
+            Payments & invoices
+          </span>
+          <span class="support-pill">
+            <i class="bi bi-building-gear me-1"></i>
+            Vendor / KYC issues
+          </span>
+        </div>
+      </div>
+
+      <div class="col-md-4 text-md-end">
+        <div class="d-inline-block text-start p-3 bg-white rounded-4 shadow-sm">
+          <div class="d-flex align-items-center mb-2">
+            <div class="support-icon-circle me-2">
+              <i class="bi bi-headset"></i>
+            </div>
+            <div>
+              <div class="fw-semibold">Support hours</div>
+              <div class="support-subtle">09:00 AM – 08:00 PM IST</div>
+            </div>
+          </div>
+          <div class="support-subtle mb-1">
+            Typical response time <strong>&lt; 24 hours</strong>
+          </div>
+          <div class="support-contact-pill mt-2">
+            <i class="bi bi-envelope-at me-1"></i>
+            help@everjourney.example
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="support-layout">
+  <div class="container">
+    <div class="row g-4">
+      <!-- LEFT: Quick topics + FAQ -->
+      <div class="col-lg-7">
+        <!-- Quick topics -->
+        <div class="row g-3 mb-4">
+          <div class="col-sm-6">
+            <a href="#support-form" class="text-decoration-none text-dark">
+              <div class="p-3 bg-white support-topic-card h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="support-icon-circle me-2">
+                    <i class="bi bi-building-check"></i>
+                  </div>
+                  <div>
+                    <div class="fw-semibold">Hotel bookings</div>
+                    <div class="support-subtle">Changes, cancellations & check-in issues</div>
+                  </div>
+                </div>
+                <ul class="mb-0 support-subtle ps-3">
+                  <li>View / cancel a booking</li>
+                  <li>Update guest details</li>
+                  <li>Refund status for hotel_bookings</li>
+                </ul>
+              </div>
+            </a>
+          </div>
+
+          <div class="col-sm-6">
+            <a href="#support-form" class="text-decoration-none text-dark">
+              <div class="p-3 bg-white support-topic-card h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="support-icon-circle me-2">
+                    <i class="bi bi-bus-front-fill"></i>
+                  </div>
+                  <div>
+                    <div class="fw-semibold">Travel & routes</div>
+                    <div class="support-subtle">Transport bookings & seat issues</div>
+                  </div>
+                </div>
+                <ul class="mb-0 support-subtle ps-3">
+                  <li>transport_bookings help</li>
+                  <li>Seat / coach issues</li>
+                  <li>Missed departure support</li>
+                </ul>
+              </div>
+            </a>
+          </div>
+
+          <div class="col-sm-6">
+            <a href="#faq-payments" class="text-decoration-none text-dark">
+              <div class="p-3 bg-white support-topic-card h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="support-icon-circle me-2">
+                    <i class="bi bi-credit-card-2-front"></i>
+                  </div>
+                  <div>
+                    <div class="fw-semibold">Payments & refunds</div>
+                    <div class="support-subtle">payments & invoices modules</div>
+                  </div>
+                </div>
+                <ul class="mb-0 support-subtle ps-3">
+                  <li>Double charge or failed payment</li>
+                  <li>Invoice / GST details (invoices table)</li>
+                  <li>Refund timelines & status</li>
+                </ul>
+              </div>
+            </a>
+          </div>
+
+          <div class="col-sm-6">
+            <a href="#faq-vendor" class="text-decoration-none text-dark">
+              <div class="p-3 bg-white support-topic-card h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="support-icon-circle me-2">
+                    <i class="bi bi-building-lock"></i>
+                  </div>
+                  <div>
+                    <div class="fw-semibold">Vendor / KYC</div>
+                    <div class="support-subtle">Hotel & transport providers</div>
+                  </div>
+                </div>
+                <ul class="mb-0 support-subtle ps-3">
+                  <li>Account / KYC verification</li>
+                  <li>transport_providers / hotels ownership</li>
+                  <li>Payout & settlement queries</li>
+                </ul>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- FAQ accordion -->
+        <div class="card support-card mb-4" id="faq">
+          <div class="card-header bg-white support-card-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Frequently asked questions</h5>
+              <span class="support-subtle">Based on hotel_bookings, transport_bookings & payments flow</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="accordion" id="supportFaqAccordion">
+
+              <!-- Booking FAQ -->
+              <div class="accordion-item" id="faq-booking">
+                <h2 class="accordion-header">
+                  <button class="accordion-button" type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#faqBookingCollapse"
+                          aria-expanded="true">
+                    How do I view or cancel my hotel or transport booking?
+                  </button>
+                </h2>
+                <div id="faqBookingCollapse" class="accordion-collapse collapse show"
+                     data-bs-parent="#supportFaqAccordion">
+                  <div class="accordion-body support-subtle">
+                    Go to <strong>Profile → My Bookings</strong>.  
+                    We show both <code>hotel_bookings</code> and <code>transport_bookings</code> linked to your account.
+                    <br><br>
+                    For each booking, you’ll see:
+                    <ul>
+                      <li>Booking reference (<code>booking_ref</code>)</li>
+                      <li>Status (pending, confirmed, cancelled…)</li>
+                      <li>Check-in / departure date</li>
+                    </ul>
+                    Depending on the hotel or provider policy, you may see a <strong>Cancel</strong> button.
+                    Once a booking is cancelled, we trigger the refund workflow through the <code>payments</code> table
+                    and update your status in <code>notifications</code>.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payments FAQ -->
+              <div class="accordion-item" id="faq-payments">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#faqPaymentCollapse">
+                    I was charged but my booking is not confirmed. What should I do?
+                  </button>
+                </h2>
+                <div id="faqPaymentCollapse" class="accordion-collapse collapse"
+                     data-bs-parent="#supportFaqAccordion">
+                  <div class="accordion-body support-subtle">
+                    In rare cases, your payment might succeed but the booking doesn’t get confirmed due to network delays.
+                    <br><br>
+                    Our system checks the <code>payments</code> table against <code>hotel_bookings</code> /
+                    <code>transport_bookings</code> and internally logs a record in <code>audit_logs</code>.
+                    <br><br>
+                    <strong>What you can do:</strong>
+                    <ol>
+                      <li>Wait for 10–15 minutes — in many cases, the booking gets auto-synced.</li>
+                      <li>If you still don’t see your booking, submit a request below with your <strong>payment_ref</strong> or
+                          transaction screenshot.</li>
+                      <li>Our team will either confirm the booking manually or initiate a refund via the payment provider.</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Coupons FAQ -->
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#faqCouponCollapse">
+                    My coupon code is not working. How are coupons validated?
+                  </button>
+                </h2>
+                <div id="faqCouponCollapse" class="accordion-collapse collapse"
+                     data-bs-parent="#supportFaqAccordion">
+                  <div class="accordion-body support-subtle">
+                    Coupons are stored in the <code>coupons</code> table and redeemed through
+                    <code>coupon_redemptions</code>.
+                    A coupon may fail if:
+                    <ul>
+                      <li>The code is expired (<code>valid_to</code> passed).</li>
+                      <li>You’ve crossed the user or global <code>usage_limit</code>.</li>
+                      <li>The coupon does not apply to this booking type (hotel / transport / both).</li>
+                      <li>The minimum order value is not satisfied.</li>
+                    </ul>
+                    If you think the coupon should work, share the code and booking details via the form and we’ll
+                    manually verify it.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Vendor / KYC FAQ -->
+              <div class="accordion-item" id="faq-vendor">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#faqVendorCollapse">
+                    I am a hotel / transport vendor. How is my account verified?
+                  </button>
+                </h2>
+                <div id="faqVendorCollapse" class="accordion-collapse collapse"
+                     data-bs-parent="#supportFaqAccordion">
+                  <div class="accordion-body support-subtle">
+                    When you sign up as a vendor, we create a user record with role <code>'vendor'</code> and
+                    link it either to <code>hotels.owner_user_id</code> or <code>transport_providers.owner_user_id</code>.
+                    <br><br>
+                    For KYC, our team verifies:
+                    <ul>
+                      <li>Business details (GST / registration_number)</li>
+                      <li>Property or vehicle ownership (e.g., hotel docs, vehicle_type)</li>
+                      <li>Contact info in <code>contact_info</code> JSON field</li>
+                    </ul>
+                    We may also use an external KYC API (sandbox mode for testing) and record the outcome in
+                    <code>audit_logs</code> for compliance.
+                    Once verified, your listings are marked as active and eligible for payments & payouts.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notifications FAQ -->
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#faqNotificationCollapse">
+                    How will I get notified about booking status and changes?
+                  </button>
+                </h2>
+                <div id="faqNotificationCollapse" class="accordion-collapse collapse"
+                     data-bs-parent="#supportFaqAccordion">
+                  <div class="accordion-body support-subtle">
+                    We log important events (booking confirmation, cancellation, refunds, vendor updates) as records in
+                    the <code>notifications</code> table.
+                    <br><br>
+                    Depending on your preferences, you may also receive:
+                    <ul>
+                      <li>Email alerts for new bookings and cancellations</li>
+                      <li>Reminder emails near check-in / departure date</li>
+                      <li>Payment status updates when <code>payment_status</code> changes</li>
+                    </ul>
+                    You’ll soon be able to manage notification preferences directly from your profile page.
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Self-help small block -->
+        <div class="alert alert-primary d-flex align-items-start gap-2">
+          <i class="bi bi-info-circle mt-1"></i>
+          <div class="support-subtle">
+            <strong>Tip:</strong> For faster resolution, try to include your
+            <strong>booking_ref</strong>, <strong>payment_ref</strong> or registered email
+            exactly as used while booking.
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Support request form + contact -->
+      <div class="col-lg-5">
+        <div class="card support-card mb-4" id="support-form">
+          <div class="card-header bg-white support-card-header">
+            <h5 class="mb-0">Raise a support request</h5>
+          </div>
+          <div class="card-body">
+            <form method="post" action="/support">
+              <!-- If you want CSRF later, add hidden token here -->
+
+              <div class="mb-2">
+                <label class="form-label small">
+                  Issue type <span class="required-star">*</span>
+                </label>
+                <select name="issue_type" class="form-select form-select-sm" required>
+                  <option value="">Select an option</option>
+                  <option value="hotel_booking">Hotel booking issue</option>
+                  <option value="transport_booking">Transport / route issue</option>
+                  <option value="payment">Payment / refund</option>
+                  <option value="coupon">Coupon / discount</option>
+                  <option value="vendor">Vendor / KYC / listing</option>
+                  <option value="account">Account / login</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div class="mb-2">
+                <label class="form-label small">
+                  Email used for booking <span class="required-star">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  class="form-control form-control-sm"
+                  required
+                  placeholder="you@example.com"
+                  value="<%= (currentUser && currentUser.email) ? currentUser.email : '' %>"
+                >
+              </div>
+
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label small">Booking reference (if any)</label>
+                  <input
+                    type="text"
+                    name="booking_ref"
+                    class="form-control form-control-sm"
+                    placeholder="e.g. EJH1234 or EJT5678"
+                  >
+                  <div class="form-text small">
+                    From <code>hotel_bookings.booking_ref</code> or <code>transport_bookings.booking_ref</code>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small">Payment reference</label>
+                  <input
+                    type="text"
+                    name="payment_ref"
+                    class="form-control form-control-sm"
+                    placeholder="Optional"
+                  >
+                  <div class="form-text small">
+                    If available in your bank / UPI statement
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-2 mt-2">
+                <label class="form-label small">
+                  Subject <span class="required-star">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="subject"
+                  class="form-control form-control-sm"
+                  maxlength="120"
+                  required
+                  placeholder="Short summary of the issue"
+                >
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small">
+                  Describe your issue <span class="required-star">*</span>
+                </label>
+                <textarea
+                  name="message"
+                  class="form-control form-control-sm"
+                  rows="4"
+                  required
+                  placeholder="Include what went wrong, date, city/hotel/route and any error messages you saw..."
+                ></textarea>
+                <div class="form-text small">
+                  Do not share full card numbers or sensitive passwords here.
+                </div>
+              </div>
+
+              <div class="mb-2">
+                <label class="form-label small">Attach screenshot / URL (optional)</label>
+                <input
+                  type="text"
+                  name="context_url"
+                  class="form-control form-control-sm"
+                  placeholder="Link to screenshot (Google Drive, Imgur, etc.)"
+                >
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="support-subtle">
+                  By submitting, you agree that we may log this event in
+                  <code>audit_logs</code> for quality & security.
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">
+                  Submit request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Contact blocks -->
+        <div class="card support-card">
+          <div class="card-header bg-white support-card-header">
+            <h6 class="mb-0">Other ways to reach us</h6>
+          </div>
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-envelope-open me-2 text-primary"></i>
+              <div>
+                <div class="fw-semibold">Email support</div>
+                <div class="support-subtle">help@everjourney.example</div>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-whatsapp me-2 text-success"></i>
+              <div>
+                <div class="fw-semibold">WhatsApp (coming soon)</div>
+                <div class="support-subtle">We’ll notify you in <code>notifications</code> when chat support is live.</div>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-clock-history me-2 text-secondary"></i>
+              <div>
+                <div class="fw-semibold">Expected timelines</div>
+                <div class="support-subtle">
+                  <ul class="mb-0 ps-3">
+                    <li>Hotel / transport booking issues: 2–8 working hours</li>
+                    <li>Refund & payment disputes: 3–7 working days</li>
+                    <li>Vendor KYC & onboarding: 2–5 working days</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="border-top pt-2 mt-2 support-subtle">
+              For critical issues with an ongoing trip (e.g. denied check-in, overbooking),
+              contact the hotel / provider directly using the details in your confirmation,
+              and raise a ticket here so we can follow up and record it in our systems.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,220 @@
+<style>
+  body { background:#f5f7fb; }
+  .page-section { padding:1.5rem 0 3rem; }
+  .card { background:#fff; border-radius:.75rem; box-shadow:0 6px 18px rgba(15,23,42,.06); border:none; }
+
+  .deals-hero {
+    padding:1.5rem 1.25rem;
+    background:linear-gradient(135deg, #0ea5e9, #6366f1);
+    border-radius:.9rem;
+    color:#fff;
+    margin-bottom:1.25rem;
+  }
+  .deals-badge {
+    display:inline-block;
+    padding:.12rem .55rem;
+    border-radius:999px;
+    background:rgba(255,255,255,.15);
+    font-size:.78rem;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+
+  .section-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:.65rem;
+  }
+  .section-title {
+    font-size:1.05rem;
+    font-weight:600;
+    margin:0;
+  }
+  .section-sub {
+    font-size:.86rem;
+    color:#6b7280;
+  }
+
+  .deal-card {
+    border-radius:.8rem;
+    overflow:hidden;
+    transition:.16s ease;
+  }
+  .deal-card:hover {
+    transform:translateY(-4px);
+    box-shadow:0 12px 32px rgba(15,23,42,.12);
+  }
+
+  .deal-img {
+    width:100%;
+    height:150px;
+    object-fit:cover;
+  }
+  .deal-body {
+    padding:.75rem .85rem .9rem;
+  }
+  .deal-title {
+    font-size:.98rem;
+    font-weight:600;
+    margin-bottom:.15rem;
+  }
+  .deal-meta {
+    font-size:.82rem;
+    color:#6b7280;
+  }
+  .price-line {
+    margin-top:.45rem;
+    font-size:.9rem;
+  }
+  .price-main {
+    font-weight:700;
+    color:#0b5cff;
+  }
+  .pill-small {
+    display:inline-flex;
+    align-items:center;
+    gap:.25rem;
+    padding:.1rem .45rem;
+    border-radius:999px;
+    border:1px solid #e5e7eb;
+    background:#f9fafb;
+    font-size:.74rem;
+    color:#4b5563;
+  }
+
+  @media(max-width: 767px) {
+    .deals-hero { padding:1rem .9rem; }
+  }
+</style>
+
+<%
+  const fmtINR = (v) => {
+    if (v === null || v === undefined) return "0";
+    const num = Number(v);
+    if (Number.isNaN(num)) return "0";
+    try { return num.toLocaleString("en-IN"); } catch (e) { return String(num); }
+  };
+%>
+
+<section class="container page-section">
+
+  <!-- HERO / INTRO -->
+  <div class="deals-hero">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <div class="deals-badge mb-1">Limited-time picks</div>
+        <h1 class="h4 mb-1">Best hotel & travel deals</h1>
+        <p class="mb-0" style="font-size:.9rem; opacity:.9;">
+          Handpicked stays and transport options with great value — all in one place.
+        </p>
+      </div>
+      <div style="font-size:.8rem; text-align:right; opacity:.9;">
+        Prices shown are per night or per seat where applicable.<br>
+        Availability may change at the time of booking.
+      </div>
+    </div>
+  </div>
+
+  <!-- HOTEL DEALS -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="section-header">
+        <div>
+          <p class="section-title mb-0">Hotel deals</p>
+          <p class="section-sub mb-0">Popular properties with attractive nightly rates.</p>
+        </div>
+        <div>
+          <a href="/stays/hotels" class="section-sub text-decoration-none">View all hotels &rarr;</a>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <% if (hotelDeals && hotelDeals.length) { %>
+          <% hotelDeals.forEach(h => { %>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+              <a href="/hotel/<%= h.id %>" class="text-decoration-none text-reset">
+                <div class="deal-card bg-white">
+                  <img src="<%= h.image %>" alt="<%= h.name %>" class="deal-img">
+                  <div class="deal-body">
+                    <div class="deal-title text-truncate"><%= h.name %></div>
+                    <div class="deal-meta text-truncate">
+                      <%= h.city || '' %>
+                      <% if (h.country) { %> • <%= h.country %><% } %>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center price-line">
+                      <div>
+                        <span class="price-main">₹ <%= fmtINR(h.min_price) %></span>
+                        <span style="font-size:.8rem; color:#6b7280;"> / night</span>
+                      </div>
+                      <div>
+                        <% if (h.star_rating) { %>
+                          <span class="pill-small"><%= h.star_rating %>★</span>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="col-12">
+            <div class="text-muted small">No hotel deals available at the moment.</div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSPORT DEALS -->
+  <div class="card">
+    <div class="card-body">
+      <div class="section-header">
+        <div>
+          <p class="section-title mb-0">Transport deals</p>
+          <p class="section-sub mb-0">Budget-friendly routes for your next trip.</p>
+        </div>
+        <div>
+          <a href="/transport" class="section-sub text-decoration-none">Search transport &rarr;</a>
+        </div>
+      </div>
+
+      <div class="row g-2 mt-1">
+        <% if (transportDeals && transportDeals.length) { %>
+          <% transportDeals.forEach(t => { %>
+            <div class="col-12 col-md-6 col-lg-4">
+              <a href="/transport/<%= t.route_id %>" class="text-decoration-none text-reset">
+                <div class="deal-card p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="deal-title mb-0"><%= t.provider_name %></div>
+                    <span class="pill-small">Route</span>
+                  </div>
+                  <div class="deal-meta mb-1">
+                    <%= t.from_city %> &rarr; <%= t.to_city %>
+                  </div>
+                  <% if (t.departure_datetime) { %>
+                    <div style="font-size:.78rem; color:#6b7280;">
+                      Departs: <%= new Date(t.departure_datetime).toLocaleString() %>
+                    </div>
+                  <% } %>
+                  <div class="d-flex justify-content-between align-items-center price-line mt-2">
+                    <div>
+                      <span class="price-main">₹ <%= fmtINR(t.min_price) %></span>
+                      <span style="font-size:.8rem; color:#6b7280;"> / seat</span>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="col-12">
+            <div class="text-muted small">No transport deals available at the moment.</div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+</section>

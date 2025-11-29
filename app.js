@@ -3117,6 +3117,186 @@ app.get("/hotel/:hotelId/room/:roomTypeId", async (req, res) => {
 
 
 // ===================================================================
+//                         UNIFIED SEARCH ROUTE
+// ===================================================================
+
+// All search forms (navbar + home hero search card) can submit to /search
+// and this route will redirect to either /stays/hotels or /transport
+// with the proper query parameters.
+app.get("/search", (req, res) => {
+  try {
+    // kind/mode tells us whether user is searching stays or transport
+    // default = 'hotel' so navbar search works without changes
+    const kindRaw = (req.query.kind || req.query.mode || "hotel").toString().toLowerCase();
+
+    // Helper to build a clean query string with only allowed keys
+    function buildQuery(allowedKeys) {
+      const params = new URLSearchParams();
+      for (const key of allowedKeys) {
+        const val = req.query[key];
+        if (val === undefined || val === null || val === "") continue;
+
+        // Support array-type query params (e.g., amenities[])
+        if (Array.isArray(val)) {
+          val.forEach((v) => {
+            if (v !== undefined && v !== null && v !== "") {
+              params.append(key, String(v));
+            }
+          });
+        } else {
+          params.append(key, String(val));
+        }
+      }
+      const qs = params.toString();
+      return qs ? `?${qs}` : "";
+    }
+
+    // ----------------- TRAVEL / TRANSPORT SEARCH -----------------
+    if (kindRaw === "travel" || kindRaw === "transport") {
+      // Map from unified search form → /transport filters
+      const qs = buildQuery([
+        "from_city",   // city id or name – your form should match these names
+        "to_city",
+        "date",
+        "passengers",
+        "type",        // airline / bus / train / cab / other
+        "seat_class",
+        "price_max",
+        "q",           // provider name search
+        "sort",
+      ]);
+
+      return res.redirect(`/transport${qs}`);
+    }
+
+    // ----------------- HOTEL / STAYS SEARCH (default) -----------------
+    // Anything else (or missing kind) is treated as hotel search
+    const qs = buildQuery([
+      "q",           // destination text
+      "city",        // optional city id
+      "checkin",
+      "checkout",
+      "guests",
+      "price_max",
+      "stars",
+      "room_type",
+      "amenities",   // can be array
+      "sort",
+    ]);
+
+    return res.redirect(`/stays/hotels${qs}`);
+  } catch (err) {
+    console.error("Unified /search route error:", err);
+    // Fail safe: go home instead of crashing
+    return res.redirect("/");
+  }
+});
+
+
+
+app.get("/support", (req, res) => {
+  res.render("support", {
+    title: "Support • EverJourney",
+  });
+});
+
+
+
+
+
+// ===================================================================
+//                         DEALS PAGE (Hotels + Transport only)
+//   GET /deals
+// ===================================================================
+
+app.get("/deals", async (req, res) => {
+  try {
+    // 1) HOTEL DEALS: cheapest nightly rate per hotel
+    const hotelDealsSql = `
+      SELECT h.id AS hotel_id,
+             h.name,
+             COALESCE(c.name,'')   AS city,
+             COALESCE(cnt.name,'') AS country,
+             h.star_rating,
+             MIN(rtr.price)        AS min_price,
+             (
+               SELECT ri.url
+               FROM rooms r2
+               JOIN room_images ri ON ri.room_id = r2.id
+               WHERE r2.hotel_id = h.id
+               ORDER BY ri.is_primary DESC, ri.sort_order ASC NULLS LAST
+               LIMIT 1
+             ) AS image_url
+      FROM hotels h
+      LEFT JOIN cities c   ON c.id = h.city_id
+      LEFT JOIN countries cnt ON cnt.id = c.country_id
+      JOIN room_types rt   ON rt.hotel_id = h.id
+      JOIN room_type_rates rtr ON rtr.room_type_id = rt.id
+      GROUP BY h.id, c.name, cnt.name, h.star_rating
+      ORDER BY min_price ASC NULLS LAST
+      LIMIT 6;
+    `;
+
+    const hotelDealsRes = await pool.query(hotelDealsSql);
+    const hotelDeals = (hotelDealsRes.rows || []).map((r) => ({
+      id: r.hotel_id,
+      name: r.name,
+      city: r.city,
+      country: r.country,
+      star_rating: Number(r.star_rating) || 0,
+      min_price: r.min_price ? Number(r.min_price) : 0,
+      image: r.image_url || "/assets/hotel-placeholder.jpg",
+    }));
+
+    // 2) TRANSPORT DEALS: cheapest seat price per route
+    let transportDeals = [];
+    try {
+      const transportDealsSql = `
+        SELECT tr.id AS route_id,
+               tp.name AS provider_name,
+               COALESCE(fc.name,'') AS from_city,
+               COALESCE(tc.name,'') AS to_city,
+               MIN(ts.price)        AS min_price,
+               tr.departure_datetime
+        FROM transport_routes tr
+        JOIN transport_providers tp ON tp.id = tr.provider_id
+        LEFT JOIN cities fc ON fc.id = tr.from_city_id
+        LEFT JOIN cities tc ON tc.id = tr.to_city_id
+        LEFT JOIN transport_seats ts ON ts.route_id = tr.id
+        GROUP BY tr.id, tp.name, fc.name, tc.name, tr.departure_datetime
+        HAVING MIN(ts.price) IS NOT NULL
+        ORDER BY MIN(ts.price) ASC NULLS LAST
+        LIMIT 6;
+      `;
+      const transportDealsRes = await pool.query(transportDealsSql);
+      transportDeals = (transportDealsRes.rows || []).map((r) => ({
+        route_id: r.route_id,
+        provider_name: r.provider_name,
+        from_city: r.from_city || "Origin",
+        to_city: r.to_city || "Destination",
+        min_price: r.min_price ? Number(r.min_price) : 0,
+        departure_datetime: r.departure_datetime,
+      }));
+    } catch (e) {
+      console.warn("Deals: transport query failed (maybe transport tables missing):", e.message || e);
+      transportDeals = [];
+    }
+
+    res.render("deals/index", {
+      title: "Deals • EverJourney",
+      hotelDeals,
+      transportDeals,
+    });
+  } catch (err) {
+    console.error("GET /deals error:", err);
+    res.status(500).send("Server error while loading deals");
+  }
+});
+
+
+
+
+// ===================================================================
 //                         MISC
 // ===================================================================
 
