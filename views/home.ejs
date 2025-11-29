@@ -1,259 +1,404 @@
-<!-- Hero Section -->
-<section class="hero position-relative d-flex align-items-center justify-content-center text-center text-white"
-  style="height: calc(100vh - 70px);">
-  <!-- Dark Overlay -->
-  <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100"
-    style="background: rgba(0,0,0,0.5); z-index: 1;"></div>
+<style>
+  /* HERO */
+  .hero-full {
+    height: 90vh;
+    min-height: 85vh;
+    background-position: center;
+    background-size: cover;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(106, 106, 106, 0.25);
+  }
+  .search-card {
+    backdrop-filter: blur(6px);
+    background: rgba(255,255,255,0.96);
+    border-radius: .9rem;
+    box-shadow: 0 10px 30px rgba(15,23,42,0.3);
+    border: 1px solid rgba(148,163,184,0.4);
+  }
 
-  <!-- Background Image -->
-  <img src="/images/hero-bg.jpg" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
-    alt="Travel Background" style="z-index:0;">
+  .section-compact { padding: 2rem 1rem; }
 
-  <!-- Hero Content -->
-  <div class="container position-relative z-2">
-    <h1 class="display-4 fw-bold">Your Journey Begins with EverJourney</h1>
-    <p class="lead">Hotels, Travels & Exclusive Packages — All in One Place</p>
+  .rating-pill {
+    background: rgba(255,255,255,0.95);
+    border-radius: .4rem;
+    padding: .25rem .5rem;
+    font-weight:600;
+  }
 
-    <!-- Booking Search Tabs -->
-    <div class="search-box bg-white shadow rounded-3 p-3 p-md-4">
-      <ul class="nav nav-pills mb-3 justify-content-center" id="bookingTabs" role="tablist">
-        <li class="nav-item"><button class="nav-link active" id="bus-tab" data-bs-toggle="pill"
-            data-bs-target="#bus">Bus</button></li>
-        <li class="nav-item"><button class="nav-link" id="stays-tab" data-bs-toggle="pill"
-            data-bs-target="#stays">Hotels</button></li>
-        <li class="nav-item"><button class="nav-link" id="cabs-tab" data-bs-toggle="pill"
-            data-bs-target="#cabs">Cabs</button></li>
-        <li class="nav-item"><button class="nav-link" id="packages-tab" data-bs-toggle="pill"
-            data-bs-target="#packages">Packages</button></li>
-      </ul>
+  .form-label {
+    color: #2563eb;
+    font-weight: 500;
+  }
 
-      <div class="tab-content">
-        <!-- Bus Booking -->
-        <div class="tab-pane fade show active" id="bus">
-          <form action="/buses" method="GET" class="row g-2">
-            <div class="col-md-3"><input type="text" name="from" class="form-control" placeholder="From"></div>
-            <div class="col-md-3"><input type="text" name="to" class="form-control" placeholder="To"></div>
-            <div class="col-md-3"><input type="date" name="date" class="form-control"></div>
-            <div class="col-md-3"><button class="btn btn-danger w-100">Search Buses</button></div>
-          </form>
-        </div>
+  /* cards */
+  .card {
+    border-radius: .9rem;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+  }
+  .card-img-top {
+    height: 170px;
+    object-fit: cover;
+  }
 
-        <!-- Hotels -->
-        <div class="tab-pane fade" id="stays">
-          <form action="/hotels" method="GET" class="row g-2">
-            <div class="col-md-4"><input type="text" name="q" class="form-control" placeholder="Enter city / hotel">
+  .hotel-card-img {
+    height: 190px;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  /* FAQ / questions */
+  .faq-card .accordion-item {
+    border-radius: .8rem;
+    overflow: hidden;
+    margin-bottom: .6rem;
+    border: 1px solid #e5e7eb;
+  }
+  .faq-card .accordion-button {
+    background: #f9fafb;
+    font-weight: 500;
+  }
+
+  /* search mode pills */
+  .search-mode-toggle {
+    display: inline-flex;
+    border-radius: 999px;
+    background: rgba(15,23,42,0.08);
+    padding: .15rem;
+  }
+  .search-mode-toggle button {
+    border: none;
+    background: transparent;
+    padding: .3rem .9rem;
+    border-radius: 999px;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #1f2933;
+  }
+  .search-mode-toggle button.active {
+    background: #2563eb;
+    color: #f9fafb;
+    box-shadow: 0 0 0 1px rgba(37,99,235,0.6);
+  }
+
+  @media (min-width: 992px) {
+    .hero-full { height: 66vh; }
+  }
+
+  /* dark mode tweaks */
+  html[data-theme="dark"] body { background:#020617; color:#e5e7eb; }
+  html[data-theme="dark"] .card { background:#020617; border-color:#0f172a; }
+  html[data-theme="dark"] .section-compact.bg-light { background:#020617 !important; }
+  html[data-theme="dark"] .faq-card .accordion-button { background:#020617; color:#e5e7eb; }
+  html[data-theme="dark"] .search-card { background:rgba(15,23,42,0.94); border-color:#1f2937; }
+</style>
+
+<!-- HERO (full width) -->
+<section class="container-fluid px-0">
+  <div class="hero-full" style="background-image: url('/assets/homeImage.jpg');">
+    <div class="hero-overlay"></div>
+
+    <div class="container position-relative" style="z-index:2;">
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 text-center text-white">
+          <h1 class="display-5 fw-bold">Find great stays, tours & experiences</h1>
+          <p class="lead mb-4">Compare hotels, check live prices and book your perfect trip</p>
+
+          <!-- Search Card -->
+          <div class="mx-auto" style="max-width:900px;">
+            <div class="search-card p-3 p-md-4 text-start">
+              <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                  <div class="text-muted small mb-1">What would you like to book?</div>
+                  <div class="search-mode-toggle" id="searchModeToggle">
+                    <button type="button" data-mode="hotel" class="active">Hotels</button>
+                    <button type="button" data-mode="travel">Travel</button>
+                  </div>
+                </div>
+                <div class="small text-muted">
+                  One place for stays & transport.
+                </div>
+              </div>
+
+              <!-- HOTEL SEARCH FORM -->
+              <form id="hotelSearchForm" action="/stays/hotels" method="get" class="row g-2 align-items-end">
+                <div class="col-12 col-md-5">
+                  <label class="form-label small mb-1">Destination</label>
+                  <input name="q" class="form-control" placeholder="City, hotel, area (e.g. Pune)"
+                         value="<%= (filters && filters.q) ? filters.q : '' %>">
+                </div>
+                <div class="col-6 col-md-2">
+                  <label class="form-label small mb-1">Check-in</label>
+                  <input name="checkin" type="date" class="form-control"
+                         value="<%= (filters && filters.checkin) ? filters.checkin : '' %>">
+                </div>
+                <div class="col-6 col-md-2">
+                  <label class="form-label small mb-1">Check-out</label>
+                  <input name="checkout" type="date" class="form-control"
+                         value="<%= (filters && filters.checkout) ? filters.checkout : '' %>">
+                </div>
+                <div class="col-6 col-md-2">
+                  <label class="form-label small mb-1">Guests</label>
+                  <% const gsel = Number((filters && filters.guests) || 2); %>
+                  <select name="guests" class="form-select">
+                    <option value="1" <%= gsel===1 ? 'selected':'' %>>1</option>
+                    <option value="2" <%= gsel===2 ? 'selected':'' %>>2</option>
+                    <option value="3" <%= gsel===3 ? 'selected':'' %>>3</option>
+                    <option value="4" <%= gsel===4 ? 'selected':'' %>>4</option>
+                  </select>
+                </div>
+                <div class="col-6 col-md-1 d-grid">
+                  <button class="btn btn-primary">Search</button>
+                </div>
+              </form>
+
+              <!-- TRAVEL SEARCH FORM -->
+              <form id="travelSearchForm" action="/transport" method="get" class="row g-2 align-items-end d-none">
+                <div class="col-12 col-md-4">
+                  <label class="form-label small mb-1">From</label>
+                  <input name="from" class="form-control" placeholder="City or station (e.g. Pune)">
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="form-label small mb-1">To</label>
+                  <input name="to" class="form-control" placeholder="City or station (e.g. Mumbai)">
+                </div>
+                <div class="col-6 col-md-2">
+                  <label class="form-label small mb-1">Date</label>
+                  <input name="date" type="date" class="form-control">
+                </div>
+                <div class="col-6 col-md-2">
+                  <label class="form-label small mb-1">Passengers</label>
+                  <select name="passengers" class="form-select">
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                  </select>
+                </div>
+              </form>
             </div>
-            <div class="col-md-2"><input type="date" name="checkin" class="form-control"></div>
-            <div class="col-md-2"><input type="date" name="checkout" class="form-control"></div>
-            <div class="col-md-2"><select name="guests" class="form-select">
-                <option>1 Guest</option>
-                <option selected>2 Guests</option>
-                <option>3 Guests</option>
-              </select></div>
-            <div class="col-md-2"><button class="btn btn-danger w-100">Search</button></div>
-          </form>
-        </div>
-
-        <!-- Cabs -->
-        <div class="tab-pane fade" id="cabs">
-          <form action="/cabs" method="GET" class="row g-2">
-            <div class="col-md-4"><input type="text" name="pickup" class="form-control" placeholder="Pickup Location">
-            </div>
-            <div class="col-md-4"><input type="text" name="drop" class="form-control" placeholder="Drop Location"></div>
-            <div class="col-md-2"><input type="date" name="date" class="form-control"></div>
-            <div class="col-md-2"><button class="btn btn-danger w-100">Search</button></div>
-          </form>
-        </div>
-
-        <!-- Packages -->
-        <div class="tab-pane fade" id="packages">
-          <form action="/packages" method="GET" class="row g-2">
-            <div class="col-md-6"><input type="text" name="destination" class="form-control" placeholder="Destination">
-            </div>
-            <div class="col-md-4"><input type="date" name="date" class="form-control"></div>
-            <div class="col-md-2"><button class="btn btn-danger w-100">Search</button></div>
-          </form>
-        </div>
-      </div>
-    </div>
-</section>
-
-
-
-<!-- Explore India -->
-<section class="py-5">
-  <div class="container text-center">
-    <h2 class="mb-4">Explore India with EverJourney</h2>
-    <p class="lead">Discover the best hotels, unique stays, and travel experiences across the country.</p>
-    <div class="row g-4 mt-4 justify-content-center">
-      <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm">
-          <img src="/images/goa.jpg" class="card-img-top img-fluid fixed-img" alt="Goa">
-          <div class="card-body p-2">
-            <h6 class="card-title mt-2 mb-0">Goa</h6>
           </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm">
-          <img src="/images/delhi.jpg" class="card-img-top img-fluid fixed-img" alt="Delhi">
-          <div class="card-body p-2">
-            <h6 class="card-title mt-2 mb-0">Delhi</h6>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm">
-          <img src="/images/jaipur.jpg" class="card-img-top img-fluid fixed-img" alt="Jaipur">
-          <div class="card-body p-2">
-            <h6 class="card-title mt-2 mb-0">Jaipur</h6>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm">
-          <img src="/images/mumbai.jpg" class="card-img-top img-fluid fixed-img" alt="Mumbai">
-          <div class="card-body p-2">
-            <h6 class="card-title mt-2 mb-0">Mumbai</h6>
-          </div>
+          <!-- /Search Card -->
+
         </div>
       </div>
     </div>
   </div>
 </section>
 
-
-<!-- Popular Hotels -->
-<section class="py-5 bg-light">
+<!-- Static Popular Destinations -->
+<section class="container-fluid section-compact bg-light">
   <div class="container">
-    <h2 class="text-center mb-4">Popular Hotels & Stays</h2>
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card shadow-sm">
-          <img src="/images/hotel1.jpg" class="card-img-top" alt="Hotel">
+    <h4 class="mb-3">Popular destinations in India</h4>
+
+    <div class="row g-3">
+      <!-- Delhi (always visible) -->
+      <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+        <div class="card h-100 text-center">
+          <img src="/assets/delhi.jpg" class="card-img-top" alt="Delhi">
           <div class="card-body">
-            <h5 class="card-title">Ocean View Resort</h5>
-            <p>Goa, India • ⭐⭐⭐⭐</p>
-            <p class="fw-bold">₹3500 / night</p>
-            <a href="#" class="btn btn-primary w-100">Book Now</a>
+            <h5 class="card-title mb-1">Delhi</h5>
+            <p class="small text-muted mb-0">
+              Historic capital with monuments, markets and vibrant food.
+            </p>
           </div>
         </div>
       </div>
-      <!-- Repeat for more hotels -->
-    </div>
-  </div>
-</section>
 
-<!-- Cabs -->
-<section class="py-5">
-  <div class="container">
-    <h2 class="text-center mb-4">Available Cabs</h2>
-    <div class="row g-4">
-      <div class="col-md-3">
-        <div class="card text-center shadow-sm p-3">
-          <i class="fas fa-car-side fa-3x text-primary mb-3"></i>
-          <h5>Sedan</h5>
-          <p>₹12/km</p>
-          <a href="#" class="btn btn-outline-primary">Book</a>
-        </div>
-      </div>
-      <!-- Repeat for SUV, Tempo, Luxury -->
-    </div>
-  </div>
-</section>
-
-<!-- Why Choose Us -->
-<section class="py-5 bg-light">
-  <div class="container text-center">
-    <h2 class="mb-5">Why Choose EverJourney?</h2>
-    <div class="row g-4">
-      <div class="col-md-4">
-        <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
-        <h5>Secure Bookings</h5>
-        <p>All transactions are safe and encrypted.</p>
-      </div>
-      <div class="col-md-4">
-        <i class="fas fa-headset fa-3x text-success mb-3"></i>
-        <h5>24/7 Support</h5>
-        <p>Always here to help you.</p>
-      </div>
-      <div class="col-md-4">
-        <i class="fas fa-tags fa-3x text-warning mb-3"></i>
-        <h5>Best Deals</h5>
-        <p>Save more with exclusive offers.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Top Routes -->
-<section class="py-5">
-  <div class="container">
-    <h2 class="text-center mb-4">Top Travel Routes</h2>
-    <div class="row g-4 text-center">
-      <div class="col-md-3">
-        <div class="p-3 border rounded">Mumbai → Goa</div>
-      </div>
-      <div class="col-md-3">
-        <div class="p-3 border rounded">Delhi → Jaipur</div>
-      </div>
-      <div class="col-md-3">
-        <div class="p-3 border rounded">Bangalore → Mysore</div>
-      </div>
-      <div class="col-md-3">
-        <div class="p-3 border rounded">Chennai → Pondicherry</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Super Offers -->
-<section class="py-5 bg-light">
-  <div class="container">
-    <h2 class="text-center mb-4">Super Travel Deals</h2>
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card shadow-sm">
-          <img src="/images/beachResort.jpg" class="card-img-top" alt="Deal">
+      <!-- Goa (always visible) -->
+      <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+        <div class="card h-100 text-center">
+          <img src="/assets/goa.jpg" class="card-img-top" alt="Goa">
           <div class="card-body">
-            <h5 class="card-title">Goa Beach Package</h5>
-            <p>3 Nights + Flight + Hotel</p>
-            <p class="fw-bold">₹12,999 / person</p>
-            <a href="#" class="btn btn-success w-100">Explore</a>
+            <h5 class="card-title mb-1">Goa</h5>
+            <p class="small text-muted mb-0">
+              Beaches, nightlife and relaxed coastal stays.
+            </p>
           </div>
         </div>
       </div>
-      <!-- Repeat -->
+
+      <!-- Jaipur (hidden on very small screens) -->
+      <div class="col-6 col-sm-6 col-md-4 col-lg-3 d-none d-md-block">
+        <div class="card h-100 text-center">
+          <img src="/assets/jaipur.jpg" class="card-img-top" alt="Jaipur">
+          <div class="card-body">
+            <h5 class="card-title mb-1">Jaipur</h5>
+            <p class="small text-muted mb-0">
+              Pink City with forts, palaces and colourful bazaars.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mumbai (only visible on large screens) -->
+      <div class="col-6 col-sm-6 col-md-4 col-lg-3 d-none d-lg-block">
+        <div class="card h-100 text-center">
+          <img src="/assets/mumbai.jpg" class="card-img-top" alt="Mumbai">
+          <div class="card-body">
+            <h5 class="card-title mb-1">Mumbai</h5>
+            <p class="small text-muted mb-0">
+              Sea views, business hubs and Bollywood charm.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- FAQ -->
-<section class="py-5">
+<!-- Featured Hotels (LIMITED, single-row feel, extra hidden responsively) -->
+<section class="container-fluid section-compact">
   <div class="container">
-    <h2 class="text-center mb-4">FAQs About EverJourney</h2>
-    <div class="accordion" id="faqAccordion">
-      <% if (queries && queries.length) { %>
-        <% queries.forEach((faq, index) => { %>
-          <div class="accordion-item">
-            <h2 class="accordion-header">
-              <button class="accordion-button <%= index !== 0 ? 'collapsed' : '' %>" 
-                      type="button" data-bs-toggle="collapse" data-bs-target="#faq<%= index %>">
-                <%= faq.question %>
-              </button>
-            </h2>
-            <div id="faq<%= index %>" class="accordion-collapse collapse <%= index === 0 ? 'show' : '' %>" 
-                 data-bs-parent="#faqAccordion">
-              <div class="accordion-body">
-                <%= faq.answer %>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Featured stays</h4>
+      <a href="/stays/hotels" class="small text-decoration-none">Browse all hotels</a>
+    </div>
+
+    <div class="row g-3">
+      <% if (hotels && hotels.length) { %>
+        <% for (let i = 0; i < hotels.length && i < 4; i++) { 
+             const hotel = hotels[i];
+             const star = Number(hotel.star_rating || 0);
+             const price = hotel.min_price ? Number(hotel.min_price) : 0;
+             const amenCodes = hotel.amenity_codes || hotel.amenities || [];
+             let extraClass = '';
+             if (i === 1) extraClass = 'd-none d-sm-block';      // hide on xs
+             if (i === 2) extraClass = 'd-none d-md-block';      // hide on xs & sm
+             if (i === 3) extraClass = 'd-none d-lg-block';      // hide until lg
+        %>
+          <div class="col-6 col-md-4 col-lg-3 <%= extraClass %>">
+            <div class="card h-100">
+              <img src="<%= hotel.image || '/assets/jaipur.jpg' %>" class="hotel-card-img" alt="<%= hotel.name %>">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                  <h5 class="card-title mb-0">
+                    <a href="/hotel/<%= hotel.hotel_id %>" class="text-decoration-none text-dark"><%= hotel.name %></a>
+                  </h5>
+                  <div class="rating-pill"><%= Number(star).toFixed(1) %> ★</div>
+                </div>
+                <p class="small text-muted mb-1">
+                  <%= hotel.city || '' %><%= hotel.country ? ', ' + hotel.country : '' %>
+                </p>
+                <p class="small text-muted mb-2" style="min-height:2.4rem;">
+                  <%= hotel.summary || hotel.short_description || 'Comfortable rooms with essential amenities.' %>
+                </p>
+                <div class="d-flex justify-content-between align-items-end">
+                  <div class="small text-muted">
+                    <% if (Array.isArray(amenCodes) && amenCodes.length) { %>
+                      <%= amenCodes.slice(0,3).join(', ') %>
+                    <% } else { %>
+                      &nbsp;
+                    <% } %>
+                  </div>
+                  <div class="fw-bold">From ₹ <%= price.toLocaleString('en-IN') %></div>
+                </div>
               </div>
             </div>
           </div>
-        <% }) %>
+        <% } %>
       <% } else { %>
-        <p class="text-center">No FAQs available at the moment.</p>
+        <div class="col-12">No hotels found.</div>
       <% } %>
     </div>
   </div>
 </section>
 
+<!-- Common Questions / FAQ -->
+<section class="container-fluid section-compact">
+  <div class="container faq-card">
+    <h4 class="mb-3">Common questions</h4>
+
+    <div class="accordion" id="faqAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq1-heading">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true" aria-controls="faq1">
+            How do I book a hotel on EverJourney?
+          </button>
+        </h2>
+        <div id="faq1" class="accordion-collapse collapse show" aria-labelledby="faq1-heading" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Search your destination and dates on the home page, open a hotel, choose your room type and click <strong>Reserve</strong>. 
+            You’ll be asked to fill guest details and complete payment. Once confirmed, your booking appears under <strong>My Bookings</strong>.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq2-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+            Can I book transport (bus/train/flight) from EverJourney?
+          </button>
+        </h2>
+        <div id="faq2" class="accordion-collapse collapse" aria-labelledby="faq2-heading" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Yes. Go to the <strong>Travel</strong> section, choose your from and to cities, travel date and number of passengers. 
+            You’ll see available routes from different providers. Select one, review timings and seat class, then confirm your booking and payment.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq3-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
+            How do cancellations and refunds work?
+          </button>
+        </h2>
+        <div id="faq3" class="accordion-collapse collapse" aria-labelledby="faq3-heading" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Every hotel and transport provider has its own cancellation policy. You can view it on the details page before booking and inside your booking details.  
+            After you request a cancellation from <strong>My Bookings</strong>, the system applies the policy (full/partial/non-refundable) and processes refunds back to your original payment method, if eligible.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq4-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
+            How are vendors and properties verified?
+          </button>
+        </h2>
+        <div id="faq4" class="accordion-collapse collapse" aria-labelledby="faq4-heading" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Hotels and travel providers register as vendors and complete KYC / business verification. 
+            Admin reviews their documents (e.g., business registration, ID proof, tax details) before approving them as <strong>verified vendors</strong>. 
+            Only verified vendors can manage live listings and receive bookings on EverJourney.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const toggle = document.getElementById('searchModeToggle');
+    const hotelForm = document.getElementById('hotelSearchForm');
+    const travelForm = document.getElementById('travelSearchForm');
+
+    if (!toggle || !hotelForm || !travelForm) return;
+
+    toggle.querySelectorAll('button[data-mode]').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const mode = this.dataset.mode;
+
+        toggle.querySelectorAll('button[data-mode]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        if (mode === 'hotel') {
+          hotelForm.classList.remove('d-none');
+          travelForm.classList.add('d-none');
+        } else {
+          travelForm.classList.remove('d-none');
+          hotelForm.classList.add('d-none');
+        }
+      });
+    });
+  })();
+</script>

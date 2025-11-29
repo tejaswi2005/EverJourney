@@ -1,0 +1,278 @@
+<!-- views/stays/hotelDetails.ejs -->
+
+<style>
+  body { background:#f5f7fb; }
+  .page-section { padding: 1.5rem 0 3rem; }
+  .card { background:#fff; border-radius:.75rem; box-shadow:0 6px 18px rgba(15,23,42,.06); border:none; }
+
+  .hotel-hero-wrap { display:flex; gap:1.25rem; flex-wrap:wrap; }
+  .hotel-hero-left { flex:1 1 55%; min-width:260px; }
+  .hotel-hero-right { flex:1 1 35%; min-width:240px; }
+
+  .hotel-main-img { width:100%; height:320px; object-fit:cover; border-radius:.7rem; }
+  .thumbs { display:flex; gap:.45rem; margin-top:.5rem; flex-wrap:wrap; }
+  .thumbs img { width:70px; height:56px; object-fit:cover; border-radius:.45rem; cursor:pointer; border:2px solid transparent; }
+  .thumbs img.active { border-color:#0b5cff; }
+
+  .hotel-title { font-size:1.6rem; font-weight:700; margin-bottom:.15rem; }
+  .hotel-location { color:#6b7280; font-size:.95rem; }
+  .rating-pill { display:inline-block; font-size:.85rem; padding:.2rem .6rem; border-radius:999px; background:#f9fafb; border:1px solid #e5e7eb; }
+
+  .section-title { font-weight:600; font-size:1.05rem; margin-bottom:.3rem; }
+  .section-sub { font-size:.9rem; color:#6b7280; }
+
+  .amenities-list { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.4rem; }
+  .amenity-badge { font-size:.8rem; padding:.22rem .55rem; border-radius:.6rem; background:#f1f5f9; color:#374151; }
+
+  .room-card-link { text-decoration:none; color:inherit; }
+  .room-card { display:flex; gap:.75rem; padding:.75rem; }
+  .room-thumb { width:120px; height:90px; object-fit:cover; border-radius:.5rem; }
+  .room-name { font-weight:600; font-size:1rem; margin-bottom:.15rem; }
+  .room-meta { font-size:.86rem; color:#6b7280; }
+  .room-price { font-size:1rem; font-weight:600; color:#0b5cff; }
+
+  @media(max-width: 991px) {
+    .hotel-main-img { height:220px; }
+  }
+</style>
+
+<%
+  const fmtINR = (v) => {
+    if (v === null || v === undefined) return "0";
+    const num = Number(v);
+    if (Number.isNaN(num)) return "0";
+    try { return num.toLocaleString("en-IN"); } catch (e) { return String(num); }
+  };
+
+  const coalesce = (a, b, c) => {
+    if (a !== undefined && a !== null) return a;
+    if (b !== undefined && b !== null) return b;
+    return c;
+  };
+
+  // pick main hotel image from hotel_images array
+  const heroImageObj = (hotel && hotel.images && hotel.images.length)
+    ? (hotel.images.find(i => i.is_primary) || hotel.images[0])
+    : null;
+  const heroImageUrl = heroImageObj ? heroImageObj.url : "/assets/hotel-placeholder.jpg";
+%>
+
+<section class="container page-section">
+
+  <!-- HOTEL HERO + BASIC INFO -->
+  <div class="card p-3 p-md-4">
+    <div class="hotel-hero-wrap">
+
+      <!-- LEFT: main image + thumbs -->
+      <div class="hotel-hero-left">
+        <img id="mainImg"
+             src="<%= heroImageUrl %>"
+             alt="<%= hotel ? hotel.name : 'Hotel' %>"
+             class="hotel-main-img">
+
+        <div class="thumbs">
+          <% if (hotel && hotel.images && hotel.images.length) { %>
+            <% hotel.images.forEach((img, idx) => { %>
+              <img src="<%= img.url %>"
+                   alt="<%= img.alt_text || (hotel ? hotel.name + ' image ' + (idx+1) : 'image') %>"
+                   class="<%= idx===0 ? 'active' : '' %>"
+                   data-src="<%= img.url %>">
+            <% }) %>
+          <% } else { %>
+            <img src="/assets/hotel-placeholder.jpg" alt="placeholder" class="active">
+          <% } %>
+        </div>
+      </div>
+
+      <!-- RIGHT: title, meta, brief intro -->
+      <div class="hotel-hero-right d-flex flex-column justify-content-between">
+        <div>
+          <h1 class="hotel-title"><%= hotel ? hotel.name : '' %></h1>
+          <div class="hotel-location">
+            <%= hotel && hotel.city ? hotel.city : '' %>
+            <% if (hotel && hotel.country) { %>, <%= hotel.country %><% } %>
+          </div>
+
+          <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+            <span class="rating-pill">
+              <%= typeof avg_rating === 'number' ? avg_rating.toFixed(1) : '0.0' %> ★ guest rating
+            </span>
+            <span class="rating-pill">
+              <%= hotel && hotel.star_rating ? hotel.star_rating : 0 %>★ hotel
+            </span>
+          </div>
+
+          <div class="mt-3">
+            <div class="section-title mb-1">About this stay</div>
+            <p class="section-sub mb-0" style="color:#374151;">
+              <%= hotel && hotel.description
+                    ? hotel.description
+                    : 'Comfortable stay option in ' + (hotel && hotel.city ? hotel.city : 'this destination') + '.' %>
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <div class="section-title mb-1">Starting from</div>
+          <div style="font-size:1.3rem; font-weight:700; color:#0b5cff;">
+            ₹ <%= fmtINR(coalesce(hotel && hotel.min_price, min_price, 0)) %>
+            <span style="font-size:.85rem; font-weight:400; color:#6b7280;">/ night</span>
+          </div>
+          <div class="section-sub mt-1">Final price depends on dates and room type.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HOTEL INFO + AMENITIES + ADDRESS -->
+  <div class="row g-3 g-md-4 mt-3">
+    <div class="col-lg-8">
+      <div class="card p-3 p-md-4">
+        <div class="section-title">Property information</div>
+        <p class="section-sub mb-3" style="color:#374151;">
+          <%= hotel && hotel.description
+                ? hotel.description
+                : 'This property offers a simple and comfortable stay experience, suitable for both leisure and business travellers.' %>
+        </p>
+
+        <% if (amenities && amenities.length) { %>
+          <div class="section-title mt-2 mb-1">Amenities</div>
+          <div class="amenities-list">
+            <% amenities.forEach(a => { %>
+              <span class="amenity-badge"><%= (a.label || a.name || a) %></span>
+            <% }) %>
+          </div>
+        <% } %>
+
+        <div class="section-title mt-3 mb-1">Address & contact</div>
+        <div class="section-sub" style="color:#374151;">
+          <% if (hotel) { %>
+            <div><%= hotel.address_line1 || '' %><%= hotel.address_line2 ? ', ' + hotel.address_line2 : '' %></div>
+            <div>
+              <%= hotel.city || '' %>
+              <% if (hotel && hotel.country) { %>, <%= hotel.country %><% } %>
+            </div>
+            <% if (hotel.phone) { %><div class="mt-1">Phone: <%= hotel.phone %></div><% } %>
+            <% if (hotel.email) { %><div>Email: <%= hotel.email %></div><% } %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- simple info card on right -->
+      <div class="card p-3 p-md-4">
+        <div class="section-title mb-2">Quick info</div>
+        <ul class="section-sub mb-0" style="list-style:none; padding-left:0;">
+          <li>• Check-in / check-out time visible at booking.</li>
+          <li>• Room availability depends on your dates.</li>
+          <li>• Payment and cancellation policies shown at checkout.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROOMS LIST -->
+  <div class="mt-4">
+    <h4 class="mb-2">Rooms & rates</h4>
+    <div class="row g-3 g-md-4">
+      <% if (room_types && room_types.length) { %>
+        <% room_types.forEach(rt => { %>
+          <div class="col-md-6">
+            <a href="/hotel/<%= hotel.id %>/room/<%= rt.id %>" class="room-card-link">
+              <div class="card p-2 room-card">
+                <div>
+                  <%
+                    // prefer hotel image as thumbnail (vendor-listed hotel)
+                    const hotelThumb = heroImageUrl;
+                    const rtThumb = (rt.images && rt.images[0]) ? rt.images[0] : hotelThumb;
+                  %>
+                  <img src="<%= rtThumb %>" alt="<%= rt.name %>" class="room-thumb">
+                </div>
+
+                <div class="flex-grow-1">
+                  <div class="room-name"><%= rt.name %></div>
+                  <div class="room-meta">
+                    <%= rt.description || 'Comfortable room option at this property.' %>
+                  </div>
+                  <div class="room-meta mt-1">
+                    Max guests: <%= rt.max_guests || 2 %>
+                    <% if (rt.area_sq_m) { %> • Area: <%= rt.area_sq_m %> m² <% } %>
+                  </div>
+
+                  <% if (rt.rates && rt.rates.length) { %>
+                    <%
+                      const primaryRate = rt.rates[0];
+                    %>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                      <div class="room-price">
+                        ₹ <%= fmtINR(primaryRate.price) %>
+                        <span style="font-size:.8rem; font-weight:400; color:#6b7280;">/ night</span>
+                      </div>
+                      <div style="font-size:.8rem; color:#6b7280;">
+                        Tap to view details
+                      </div>
+                    </div>
+                  <% } else { %>
+                    <div class="room-meta mt-2 text-muted">Rates will be available soon.</div>
+                  <% } %>
+                </div>
+              </div>
+            </a>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-12">
+          <div class="card p-3 text-muted">No room types found for this property yet.</div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- SIMPLE REVIEWS SECTION (READ-ONLY) -->
+  <div class="mt-4">
+    <h4 class="mb-2">Guest reviews</h4>
+    <div class="card p-3">
+      <% if (reviews && reviews.length) { %>
+        <% reviews.forEach(r => { %>
+          <div class="border-bottom py-2">
+            <div style="font-weight:600;">
+              <%= r.user_name %>
+              <span style="font-weight:400; color:#6b7280; font-size:.85rem; margin-left:.4rem;">
+                <%= r.created_at ? (new Date(r.created_at)).toLocaleDateString() : '' %>
+              </span>
+            </div>
+            <div style="margin-top:.2rem;">
+              <span class="rating-pill"><%= r.rating %> ★</span>
+              <% if (r.title) { %>
+                <strong style="margin-left:.4rem;"><%= r.title %></strong>
+              <% } %>
+            </div>
+            <% if (r.comment) { %>
+              <div style="margin-top:.35rem; font-size:.9rem; color:#374151;"><%= r.comment %></div>
+            <% } %>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="text-muted">No reviews yet.</div>
+      <% } %>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  // simple thumbnail click -> main image change
+  (function () {
+    const main = document.getElementById('mainImg');
+    if (!main) return;
+    document.querySelectorAll('.thumbs img').forEach(img => {
+      img.addEventListener('click', function () {
+        document.querySelectorAll('.thumbs img').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        main.src = this.dataset.src || this.src;
+      });
+    });
+  })();
+</script>

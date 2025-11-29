@@ -1,0 +1,394 @@
+<%
+  const o = old || {};
+%>
+
+<style>
+  .vendor-add-page {
+    padding: 2.5rem 1rem 3.5rem;
+    background: #f3f4f6;
+    min-height: calc(100vh - 72px);
+  }
+
+  .vendor-add-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .vendor-add-card {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 1.5rem;
+  }
+
+  .vendor-add-left {
+    background: linear-gradient(140deg, #1d4ed8, #0ea5e9);
+    border-radius: 1rem;
+    padding: 1.6rem 1.8rem;
+    color: #eff6ff;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+  }
+
+  .vendor-add-left-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: .25rem;
+  }
+
+  .vendor-add-left-sub {
+    font-size: .9rem;
+    color: #dbeafe;
+  }
+
+  .vendor-add-left-list {
+    font-size: .85rem;
+    margin-top: 1rem;
+    padding-left: 1.1rem;
+  }
+
+  .vendor-add-form-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    padding: 1.6rem 1.7rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .vendor-section-label {
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: .25rem;
+  }
+
+  .vendor-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: .3rem;
+  }
+
+  .vendor-muted {
+    font-size: .85rem;
+    color: #6b7280;
+  }
+
+  .form-control,
+  .form-select {
+    height: 44px;
+    border-radius: .6rem;
+    font-size: .9rem;
+  }
+
+  textarea.form-control {
+    min-height: 80px;
+    height: auto;
+  }
+
+  .btn-primary {
+    border-radius: .6rem;
+    padding: .6rem 1rem;
+  }
+
+  .vendor-error {
+    background:#fff3f2;
+    border:1px solid #ffd3cf;
+    color:#9b1c1c;
+    padding:.6rem;
+    border-radius:.5rem;
+    margin-bottom:.5rem;
+    font-size:.85rem;
+  }
+
+  .small-help {
+    font-size: .78rem;
+    color: #9ca3af;
+  }
+
+  @media(max-width: 992px) {
+    .vendor-add-card {
+      grid-template-columns: 1fr;
+    }
+    .vendor-add-form-card {
+      max-height: none;
+    }
+  }
+</style>
+
+<section class="vendor-add-page">
+  <div class="container vendor-add-wrapper">
+
+    <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        <a href="/profile" class="text-decoration-none" style="font-size:.85rem;">
+          ← Back to VendorHub
+        </a>
+        <% if (hotel) { %>
+          <span class="text-muted" style="font-size:.85rem; margin-left:.35rem;">
+            / <a href="/vendor/dashboard" class="text-decoration-none">My hotels</a>
+            / <%= hotel.name %>
+          </span>
+        <% } %>
+      </div>
+      <% if (hotel) { %>
+        <div class="text-muted" style="font-size:.82rem;">
+          Hotel ID: <code><%= hotel.id %></code>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="vendor-add-card">
+      <!-- LEFT INFO PANEL -->
+      <div class="vendor-add-left">
+        <div class="vendor-add-left-title">
+          Add rooms to <%= hotel ? hotel.name : 'hotel' %>
+        </div>
+        <p class="vendor-add-left-sub mb-2">
+          Create a room type, auto-generate room numbers, set pricing, and upload photos.
+        </p>
+
+        <div style="margin-top:.8rem;">
+          <div style="font-size:.8rem; text-transform:uppercase; letter-spacing:.08em; opacity:.95;">
+            What you’ll configure
+          </div>
+          <ul class="vendor-add-left-list">
+            <li>Create a new room type (e.g., Deluxe King, Standard AC).</li>
+            <li>Set base price, inventory, and stay rules.</li>
+            <li>Auto-generate room numbers (e.g., 101–110).</li>
+            <li>Upload images for this room type.</li>
+          </ul>
+        </div>
+
+        <div style="margin-top:1.1rem;">
+          <div style="font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;">Tip</div>
+          <p style="font-size:.82rem; margin-top:.25rem;">
+            Use clear room type names like “Deluxe King – City View” and upload at least 3–5
+            good-quality photos so users understand what they’re booking.
+          </p>
+        </div>
+      </div>
+
+      <!-- RIGHT FORM PANEL -->
+      <div class="vendor-add-form-card">
+        <h4 class="mb-1">Add rooms</h4>
+        <p class="vendor-muted mb-3">
+          Rooms will be linked to this hotel and appear under the new room type.
+        </p>
+
+        <% if (Array.isArray(errors) && errors.length) { %>
+          <% errors.forEach(e => { %>
+            <div class="vendor-error"><%= e %></div>
+          <% }) %>
+        <% } %>
+
+        <!-- enctype for file uploads -->
+        <form id="addRoomsForm"
+              method="post"
+              action="/vendor/hotels/<%= hotel && hotel.id %>/rooms"
+              enctype="multipart/form-data"
+              novalidate>
+
+          <input type="hidden" name="hotel_id" value="<%= hotel && hotel.id %>">
+          <!-- always creating NEW room type for now -->
+          <input type="hidden" name="room_type_mode" value="new">
+
+          <!-- NEW ROOM TYPE FIELDS -->
+          <div class="vendor-section-label">Room type</div>
+          <div class="vendor-section-title">Create new room type</div>
+          <p class="vendor-muted mb-2">
+            This creates a new record in <code>room_types</code> for this hotel.
+          </p>
+
+          <div class="mb-2">
+            <label class="form-label small">Room type name</label>
+            <input type="text"
+                   name="room_type_name"
+                   class="form-control"
+                   placeholder="Deluxe King, Standard AC, Suite, etc."
+                   value="<%= o.room_type_name || '' %>">
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small">Room type description (optional)</label>
+            <textarea name="room_type_description"
+                      class="form-control"
+                      placeholder="Describe bed type, view, amenities, etc."><%= o.room_type_description || '' %></textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4 mb-2">
+              <label class="form-label small">Max guests</label>
+              <input type="number"
+                     min="1"
+                     name="max_guests"
+                     class="form-control"
+                     value="<%= o.max_guests || 2 %>">
+            </div>
+            <div class="col-md-4 mb-2">
+              <label class="form-label small">Area (sq. m) (optional)</label>
+              <input type="number"
+                     step="0.1"
+                     name="area_sq_m"
+                     class="form-control"
+                     value="<%= o.area_sq_m || '' %>">
+            </div>
+          </div>
+
+          <!-- PRICING / RATES -->
+          <div class="vendor-section-label mt-3">Pricing</div>
+          <div class="vendor-section-title">Base nightly rate</div>
+          <p class="vendor-muted mb-2">
+            This will create a rate entry in <code>room_type_rates</code> for this room type.
+          </p>
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">Base price per night (₹)</label>
+              <input type="number"
+                     step="0.01"
+                     min="0"
+                     name="base_price"
+                     class="form-control"
+                     value="<%= o.base_price || '' %>">
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label small">Currency</label>
+              <select name="currency" class="form-select">
+                <option value="INR" <%= (o.currency || 'INR') === 'INR' ? 'selected' : '' %>>INR</option>
+              </select>
+            </div>
+            <div class="col-md-5 mb-3">
+              <label class="form-label small">Inventory (rooms available)</label>
+              <input type="number"
+                     min="0"
+                     name="inventory"
+                     class="form-control"
+                     value="<%= o.inventory || '' %>"
+                     placeholder="e.g., 10">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">Valid from (optional)</label>
+              <input type="date"
+                     name="valid_from"
+                     class="form-control"
+                     value="<%= o.valid_from || '' %>">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">Valid to (optional)</label>
+              <input type="date"
+                     name="valid_to"
+                     class="form-control"
+                     value="<%= o.valid_to || '' %>">
+            </div>
+            <div class="col-md-2 mb-3">
+              <label class="form-label small">Min stay</label>
+              <input type="number"
+                     min="1"
+                     name="min_stay"
+                     class="form-control"
+                     value="<%= o.min_stay || 1 %>">
+            </div>
+            <div class="col-md-2 mb-3">
+              <label class="form-label small">Max stay (optional)</label>
+              <input type="number"
+                     min="1"
+                     name="max_stay"
+                     class="form-control"
+                     value="<%= o.max_stay || '' %>">
+            </div>
+          </div>
+
+          <!-- ROOM INSTANCES (rooms table) -->
+          <div class="vendor-section-label mt-3">Rooms</div>
+          <div class="vendor-section-title">Generate room numbers</div>
+          <p class="vendor-muted mb-2">
+            We’ll create rows in the <code>rooms</code> table linked to this hotel & room type.
+          </p>
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">No. of rooms to create</label>
+              <input type="number"
+                     min="1"
+                     max="200"
+                     name="room_count"
+                     class="form-control"
+                     value="<%= o.room_count || 5 %>">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">Start room number from</label>
+              <input type="text"
+                     name="room_number_start"
+                     class="form-control"
+                     placeholder="e.g., 101"
+                     value="<%= o.room_number_start || '101' %>">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">Default floor (optional)</label>
+              <input type="number"
+                     name="default_floor"
+                     class="form-control"
+                     placeholder="e.g., 1"
+                     value="<%= o.default_floor || '' %>">
+            </div>
+          </div>
+          <p class="small-help mb-2">
+            Example: count = 5 and start = 101 → rooms 101, 102, 103, 104, 105.
+          </p>
+
+          <!-- ROOM IMAGES -->
+          <div class="vendor-section-label mt-3">Images</div>
+          <div class="vendor-section-title">Room photos</div>
+          <p class="vendor-muted mb-2">
+            Upload images that represent this room type. Backend should store them in a folder like
+            <code>everjourney/uploads</code> and create records in <code>room_images</code>.
+          </p>
+
+          <div class="mb-3">
+            <label class="form-label small">Upload room images</label>
+            <input type="file"
+                   name="room_images"
+                   class="form-control"
+                   accept="image/*"
+                   multiple>
+            <div class="small-help mt-1">
+              You can upload multiple images (JPG/PNG/WebP). A common pattern is saving files under
+              <code>/everjourney/uploads</code> and storing their URLs/paths in the database.
+            </div>
+          </div>
+
+          <div class="form-check mb-3 mt-2">
+            <input class="form-check-input"
+                   type="checkbox"
+                   id="roomsActive"
+                   name="rooms_active"
+                   value="1"
+                   <%= (o.rooms_active === '0' || o.rooms_active === 0) ? '' : 'checked' %>>
+            <label class="form-check-label vendor-muted" for="roomsActive">
+              Mark these rooms as <strong>available</strong> for booking.
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">
+            Save rooms
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function(){
+    const form = document.getElementById('addRoomsForm');
+    form?.addEventListener('submit', function(){
+      const btn = this.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
+    });
+  })();
+</script>

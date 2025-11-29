@@ -1,0 +1,96 @@
+<!-- views/profile/admin.ejs -->
+<%
+  const fmtINR = (v) => { if (v===null||v===undefined) return "0"; const n=Number(v); return Number.isNaN(n) ? '0' : n.toLocaleString('en-IN'); };
+%>
+
+<style>
+  .admin-page { padding:2rem 0; }
+  .admin-grid { display:grid; grid-template-columns: 1fr 360px; gap:1.25rem; }
+  .panel { background:#fff; border-radius:.7rem; padding:1rem; box-shadow:0 6px 18px rgba(0,0,0,.04); }
+  .stat { display:flex; gap:1rem; align-items:center; padding:.6rem; background:#f8fafc; border-radius:.5rem; }
+  .list-item { border-bottom:1px solid #f1f5f9; padding:.6rem 0; }
+  @media(max-width:991px){ .admin-grid{ grid-template-columns: 1fr; } }
+</style>
+
+<section class="container admin-page">
+  <div class="admin-grid">
+    <div class="panel">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="section-title">Admin Dashboard</h4>
+        <a href="/admin/create-user" class="btn btn-primary btn-sm">Create user</a>
+      </div>
+
+      <div class="d-flex gap-2 mt-3">
+        <div class="stat" style="flex:1;">
+          <div>
+            <div class="muted">Users</div>
+            <div style="font-weight:700;"><%= stats ? stats.user_count : 0 %></div>
+          </div>
+        </div>
+        <div class="stat" style="flex:1;">
+          <div>
+            <div class="muted">Hotels</div>
+            <div style="font-weight:700;"><%= stats ? stats.hotel_count : 0 %></div>
+          </div>
+        </div>
+        <div class="stat" style="flex:1;">
+          <div>
+            <div class="muted">Revenue</div>
+            <div style="font-weight:700;">₹ <%= fmtINR(stats ? stats.revenue : 0) %></div>
+          </div>
+        </div>
+      </div>
+
+      <hr style="margin:1rem 0;">
+      <h5 class="section-title">Recent signups</h5>
+      <% if (recentUsers && recentUsers.length) { %>
+        <% recentUsers.slice(0,6).forEach(u => { %>
+          <div class="list-item d-flex justify-content-between align-items-center">
+            <div><strong><%= u.email %></strong><div class="muted"><%= u.first_name || '' %> <%= u.last_name || '' %></div></div>
+            <div><a href="/admin/users/<%= u.id %>" class="btn btn-outline-secondary btn-sm">Manage</a></div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="text-muted p-3">No recent users.</div>
+      <% } %>
+
+      <hr style="margin:1rem 0;">
+      <h5 class="section-title">Moderator actions</h5>
+      <div class="d-grid gap-2">
+        <a href="/admin/hotels" class="btn btn-outline-primary">Manage hotels</a>
+        <a href="/admin/transports" class="btn btn-outline-primary">Manage transports</a>
+        <a href="/admin/reports" class="btn btn-outline-secondary">Reports & analytics</a>
+        <a href="/admin/settings" class="btn btn-outline-secondary">System settings</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: activity log / alerts -->
+    <div class="panel">
+      <h5 class="section-title">System Alerts</h5>
+      <% if (alerts && alerts.length) { %>
+        <% alerts.slice(0,8).forEach(a => { %>
+          <div style="border-bottom:1px solid #f1f5f9; padding:.6rem 0;">
+            <div><strong><%= a.title %></strong></div>
+            <div class="muted"><%= a.message %></div>
+            <div class="muted" style="font-size:.85rem;"><%= a.created_at ? new Date(a.created_at).toLocaleString() : '' %></div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="text-muted p-3">No alerts.</div>
+      <% } %>
+
+      <hr style="margin:1rem 0;">
+      <h5 class="section-title">Recent errors (logs)</h5>
+      <% if (logs && logs.length) { %>
+        <% logs.slice(0,8).forEach(l => { %>
+          <div style="border-bottom:1px solid #f1f5f9; padding:.6rem 0;">
+            <div class="muted"><%= l.level %> — <%= l.message %></div>
+            <div class="muted" style="font-size:.85rem;"><%= l.created_at ? new Date(l.created_at).toLocaleString() : '' %></div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="text-muted p-3">No recent logs.</div>
+      <% } %>
+    </div>
+  </div>
+</section>

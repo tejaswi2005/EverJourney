@@ -17,7 +17,7 @@ export function requireLogin(req, res, next) {
 // Ensure only admin can access the route
 export function requireAdmin(req, res, next) {
   if (!req.session?.user || req.session.user.role !== "admin") {
-    return res.status(403).send("❌ Access denied: Admins only");
+    return res.status(403).send("Access denied: Admins only");
   }
   next();
 }
@@ -25,7 +25,7 @@ export function requireAdmin(req, res, next) {
 // Ensure only normal user can access the route
 export function requireUser(req, res, next) {
   if (!req.session?.user || req.session.user.role !== "user") {
-    return res.status(403).send("❌ Access denied: Users only");
+    return res.status(403).send("Access denied: Users only");
   }
   next();
 }

@@ -1,0 +1,397 @@
+<!-- views/transport/index.ejs -->
+<style>
+  body {
+    background: #f5f7fb;
+  }
+
+  .page-section {
+    padding: 0.5rem 0 2rem;
+  }
+
+  .search-bar {
+    background: #fff;
+    padding: 1rem 1.1rem;
+    border-radius: .7rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  }
+
+  .search-input {
+    height: 48px;
+    border-radius: .5rem;
+  }
+
+  /* sidebar */
+  .filter-box {
+    background: #fff;
+    padding: 0.9rem 1.05rem;
+    border-radius: .7rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .05);
+    position: sticky;
+    top: 90px;
+  }
+  .filter-title {
+    font-weight: 600;
+    font-size: .95rem;
+    margin-bottom: .6rem;
+  }
+  .filter-box label {
+    font-size: .82rem;
+    font-weight: 500;
+    margin-bottom: .25rem;
+  }
+  .divide {
+    border-bottom: 1px solid #e5e7eb;
+    margin: .7rem 0;
+  }
+  .form-check-label {
+    font-size: .8rem;
+  }
+
+  /* cards */
+  .route-card {
+    background: #fff;
+    border-radius: .9rem;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.05);
+    overflow: hidden;
+    transition: .2s;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .route-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(15,23,42,0.12);
+  }
+  .route-img-wrap {
+    position: relative;
+    overflow: hidden;
+  }
+  .route-img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
+  .route-type-pill {
+    position: absolute;
+    left: .7rem;
+    bottom: .7rem;
+    background: rgba(15,23,42,0.85);
+    color: #f9fafb;
+    font-size: .75rem;
+    padding: .2rem .45rem;
+    border-radius: .5rem;
+  }
+  .route-body {
+    padding: .9rem 1rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .provider-name {
+    font-weight: 600;
+    font-size: .98rem;
+  }
+  .route-meta {
+    font-size: .83rem;
+    color: #6b7280;
+  }
+  .route-time-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: .45rem;
+  }
+  .route-time-col {
+    font-size: .9rem;
+  }
+  .route-time-col strong {
+    font-size: .98rem;
+  }
+  .route-duration {
+    font-size: .8rem;
+    color: #6b7280;
+  }
+
+  .route-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: .6rem;
+  }
+  .rating-badge {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: .5rem;
+    padding: .2rem .45rem;
+    font-size: .8rem;
+  }
+  .price-text {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #0b5cff;
+  }
+  .seats-left {
+    font-size: .78rem;
+    color: #ea580c;
+  }
+
+  .badge-pill {
+    border-radius: 999px;
+    padding: .2rem .6rem;
+    font-size: .78rem;
+    background: #eef2ff;
+    color: #4338ca;
+  }
+
+  @media (max-width: 991px) {
+    .filter-box {
+      display: none;
+    }
+    .mobile-filter-btn {
+      display: inline-flex !important;
+    }
+  }
+
+  /* dark mode tweaks */
+  html[data-theme="dark"] body {
+    background:#020617;
+  }
+  html[data-theme="dark"] .search-bar,
+  html[data-theme="dark"] .filter-box,
+  html[data-theme="dark"] .route-card {
+    background:#020617;
+    border-color:#0f172a;
+    color:#e5e7eb;
+  }
+  html[data-theme="dark"] .divide {
+    border-color:#1f2937;
+  }
+</style>
+
+<%
+  // Safe INR formatter
+  const fmtINR = (v) => {
+    if (v === null || v === undefined) return "0";
+    const n = Number(v);
+    if (!isFinite(n)) return "0";
+    try { return n.toLocaleString("en-IN"); } catch (e) { return String(n); }
+  };
+
+  const f = filters || {};
+  const list = routes || [];
+  const totalCount = typeof total !== "undefined" ? total : list.length;
+%>
+
+<section class="container page-section">
+
+  <!-- ===== TOP SEARCH BAR ===== -->
+  <div class="search-bar mb-4">
+    <form method="get" action="/transport" class="row g-3 align-items-center">
+      <div class="col-md-3">
+        <label class="form-label small mb-1">From</label>
+        <select name="from_city" class="form-select search-input">
+          <option value="">Any city</option>
+          <% (cities || []).forEach(c => { %>
+            <option value="<%= c.id %>" <%= f.from_city == c.id ? 'selected' : '' %>><%= c.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label small mb-1">To</label>
+        <select name="to_city" class="form-select search-input">
+          <option value="">Any city</option>
+          <% (cities || []).forEach(c => { %>
+            <option value="<%= c.id %>" <%= f.to_city == c.id ? 'selected' : '' %>><%= c.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label small mb-1">Date</label>
+        <input type="date" name="date" value="<%= f.date || '' %>" class="form-control search-input">
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label small mb-1">Passengers</label>
+        <input type="number" min="1" name="passengers" value="<%= f.passengers || 1 %>" class="form-control search-input">
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label small mb-1">Sort</label>
+        <select name="sort" class="form-select search-input">
+          <option value="soonest" <%= f.sort === 'soonest' ? 'selected' : '' %>>Departure: Soonest</option>
+          <option value="cheapest" <%= f.sort === 'cheapest' ? 'selected' : '' %>>Price: Low to High</option>
+          <option value="expensive" <%= f.sort === 'expensive' ? 'selected' : '' %>>Price: High to Low</option>
+          <option value="rating" <%= f.sort === 'rating' ? 'selected' : '' %>>Top Rated</option>
+        </select>
+      </div>
+    </form>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- ===== SIDEBAR FILTERS ===== -->
+    <div class="col-lg-3">
+      <button class="btn btn-outline-secondary btn-sm mb-2 d-lg-none mobile-filter-btn" type="button"
+              data-bs-toggle="collapse" data-bs-target="#mobileFilter" aria-expanded="false" aria-controls="mobileFilter">
+        Filters
+      </button>
+
+      <div class="filter-box collapse d-lg-block" id="mobileFilter">
+        <form method="get" action="/transport">
+          <!-- preserve main search params -->
+          <input type="hidden" name="from_city" value="<%= f.from_city || '' %>">
+          <input type="hidden" name="to_city" value="<%= f.to_city || '' %>">
+          <input type="hidden" name="date" value="<%= f.date || '' %>">
+          <input type="hidden" name="passengers" value="<%= f.passengers || '' %>">
+
+          <h6 class="filter-title">Filters</h6>
+
+          <!-- PRICE -->
+          <label>Max price: ₹ <span id="priceShow"><%= f.price_max || maxPrice || 5000 %></span></label>
+          <input type="range"
+                 name="price_max"
+                 min="0"
+                 max="<%= maxPrice || 50000 %>"
+                 value="<%= f.price_max || maxPrice || 5000 %>"
+                 id="priceSlider"
+                 class="form-range">
+
+          <div class="divide"></div>
+
+          <!-- TRANSPORT TYPE -->
+          <label>Transport type</label>
+          <select name="type" class="form-select form-select-sm">
+            <option value="">Any</option>
+            <% (transport_types || []).forEach(t => { 
+                 const code = typeof t === 'string' ? t : t.code;
+                 const label = typeof t === 'string' ? t.charAt(0).toUpperCase() + t.slice(1) : (t.label || t.code);
+            %>
+              <option value="<%= code %>" <%= f.type == code ? 'selected' : '' %>><%= label %></option>
+            <% }) %>
+          </select>
+
+          <div class="divide"></div>
+
+          <!-- SEAT CLASS -->
+          <label>Seat class</label>
+          <select name="seat_class" class="form-select form-select-sm">
+            <option value="">Any</option>
+            <% (seat_classes || []).forEach(sc => { %>
+              <option value="<%= sc %>" <%= f.seat_class == sc ? 'selected' : '' %>><%= sc %></option>
+            <% }) %>
+          </select>
+
+          <div class="divide"></div>
+
+          <!-- PROVIDER QUICK SEARCH -->
+          <label>Provider name</label>
+          <input type="text" class="form-control form-control-sm mb-1" name="q"
+                 placeholder="e.g. Indigo, RedBus" value="<%= f.q || '' %>">
+
+          <button class="btn btn-primary w-100 mt-2">Apply filters</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== RESULTS ===== -->
+    <div class="col-lg-9">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0 fw-semibold"><%= totalCount %> options found</h5>
+        <% if (f.date) { %>
+          <span style="font-size:.85rem; color:#6b7280;">For <%= f.date %><% if (f.passengers) { %>, <%= f.passengers %> passenger(s)<% } %></span>
+        <% } %>
+      </div>
+
+      <% if (list.length) { %>
+        <div class="row g-3">
+          <% list.forEach(r => { %>
+            <div class="col-md-6 col-lg-4">
+              <div class="route-card">
+                <div class="route-img-wrap">
+                  <img src="<%= r.main_image || '/assets/transport-placeholder.jpg' %>" alt="Route image" class="route-img">
+                  <span class="route-type-pill">
+                    <%= (r.provider_type || r.transport_type || 'Transport').toUpperCase() %>
+                  </span>
+                </div>
+
+                <div class="route-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="provider-name"><%= r.provider_name || 'Unknown operator' %></div>
+                      <div class="route-meta">
+                        <%= r.vehicle_type ? r.vehicle_type + ' • ' : '' %>
+                        <%= r.from_city || 'Origin' %> → <%= r.to_city || 'Destination' %>
+                      </div>
+                    </div>
+                    <% if (r.registration_number) { %>
+                      <span class="badge-pill"><%= r.registration_number %></span>
+                    <% } %>
+                  </div>
+
+                  <div class="route-time-row">
+                    <div class="route-time-col">
+                      <strong><%= r.departure_time || '' %></strong>
+                      <div class="route-meta"><%= r.from_city || 'Origin' %></div>
+                    </div>
+                    <div class="text-center">
+                      <div class="route-duration"><%= r.duration_label || '' %></div>
+                      <div style="font-size:.75rem; color:#9ca3af;">──────────</div>
+                    </div>
+                    <div class="route-time-col text-end">
+                      <strong><%= r.arrival_time || '' %></strong>
+                      <div class="route-meta"><%= r.to_city || 'Destination' %></div>
+                    </div>
+                  </div>
+
+                  <div class="route-footer">
+                    <div>
+                      <div class="rating-badge">
+                        <%= r.avg_rating ? r.avg_rating.toFixed(1) : '0.0' %> ★
+                        <% if (r.review_count) { %>
+                          <span style="color:#6b7280; font-size:.78rem;">(<%= r.review_count %>)</span>
+                        <% } %>
+                      </div>
+                      <% if (typeof r.seats_left !== 'undefined' && r.seats_left !== null) { %>
+                        <div class="seats-left mt-1"><%= r.seats_left %> seats left</div>
+                      <% } %>
+                    </div>
+
+                    <div class="text-end">
+                      <div class="price-text">
+                        ₹ <%= fmtINR(r.min_price || r.price || 0) %>
+                      </div>
+                      <div style="font-size:.8rem; color:#6b7280;">per passenger</div>
+                      <a href="/transport/<%= r.route_id %>" class="btn btn-outline-primary btn-sm mt-2 w-100">View details</a>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="alert alert-warning mt-3">
+          No routes match your search. Try changing date, cities or filters.
+        </div>
+      <% } %>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  (function() {
+    // price slider
+    const slider = document.getElementById('priceSlider');
+    const show = document.getElementById('priceShow');
+    if (slider && show) {
+      slider.addEventListener('input', function() {
+        show.textContent = this.value;
+      });
+    }
+  })();
+</script>

@@ -1,0 +1,348 @@
+<style>
+  body {
+    background: #f5f7fb;
+  }
+
+  .page-section {
+    padding: 0.5rem 0;
+  }
+
+  .search-bar {
+    background: #fff;
+    padding: 1rem;
+    border-radius: .7rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  }
+
+  .search-input {
+    height: 48px;
+    border-radius: .5rem;
+  }
+
+  /* SIDEBAR */
+  .filter-box {
+    background: #fff;
+    padding: 0.85rem 1rem;
+    border-radius: .7rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .05);
+    position: sticky;
+    top: 90px;
+  }
+
+  .filter-title {
+    font-weight: 600;
+    font-size: .95rem;
+    margin-bottom: .6rem;
+  }
+
+  .filter-box label {
+    font-size: .82rem;
+    font-weight: 500;
+    margin-bottom: .25rem;
+  }
+
+  .form-check-label {
+    font-size: .8rem;
+  }
+
+  .divide {
+    border-bottom: 1px solid #e5e7eb;
+    margin: .6rem 0;
+  }
+
+  /* HOTEL CARDS */
+  .hotel-card {
+    background: #fff;
+    border-radius: .8rem;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .05);
+    transition: .22s;
+    height: 100%;
+  }
+
+  .hotel-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .08);
+  }
+
+  .hotel-img {
+    height: 190px;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .hotel-info {
+    padding: 1rem 1.1rem;
+  }
+
+  .hotel-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .hotel-loc {
+    color: #6b7280;
+    font-size: .87rem;
+  }
+
+  .price-text {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #0b5cff;
+  }
+
+  .rating-badge {
+    background: #fff;
+    padding: .28rem .55rem;
+    border-radius: .45rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    font-size: .85rem;
+  }
+
+  .amenity-badge {
+    display: inline-block;
+    font-size: .72rem;
+    padding: .18rem .4rem;
+    border-radius: .35rem;
+    background: #f1f5f9;
+    margin-right: .35rem;
+    margin-top: .35rem;
+    color: #374151;
+  }
+
+  @media(max-width:991px) {
+    .filter-box {
+      display: none;
+    }
+
+    .mobile-filter-btn {
+      display: block !important;
+    }
+  }
+</style>
+
+<section class="container page-section">
+
+  <!-- ===== TOP SEARCH BAR ===== -->
+  <div class="search-bar mb-4">
+    <form id="searchForm" method="get" action="/stays/hotels" class="row g-3 align-items-center" aria-label="Hotel search form">
+
+      <!-- query -->
+      <div class="col-md-4">
+        <input type="text" name="q" value="<%= filters.q || '' %>" class="form-control search-input"
+          placeholder="Search hotels, city or hotel name..." aria-label="Search hotels or city">
+      </div>
+
+      <!-- dates -->
+      <div class="col-md-2">
+        <input type="date" name="checkin" value="<%= filters.checkin || '' %>" class="form-control search-input" aria-label="Check-in date">
+      </div>
+
+      <div class="col-md-2">
+        <input type="date" name="checkout" value="<%= filters.checkout || '' %>" class="form-control search-input" aria-label="Check-out date">
+      </div>
+
+      <!-- guests -->
+      <div class="col-md-1">
+        <input type="number" name="guests" min="1" value="<%= filters.guests || 1 %>" class="form-control search-input" aria-label="Number of guests">
+      </div>
+
+      <!-- sort -->
+      <div class="col-md-2">
+        <select name="sort" class="form-select search-input" aria-label="Sort results">
+          <option value="relevance" <%= (filters.sort === 'relevance' || !filters.sort) ? 'selected' : '' %>>Relevance</option>
+          <option value="price_asc" <%= filters.sort==='price_asc' ?'selected':'' %>>Price: Low to High</option>
+          <option value="price_desc" <%= filters.sort==='price_desc' ?'selected':'' %>>Price: High to Low</option>
+          <option value="rating_desc" <%= filters.sort==='rating_desc' ?'selected':'' %>>Top Rated</option>
+        </select>
+      </div>
+
+      <div class="col-md-1">
+        <button type="submit" class="btn btn-primary w-100 search-input">Go</button>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- ========== SIDEBAR FILTER ========== -->
+    <div class="col-lg-3">
+      <div class="filter-box" role="region" aria-label="Filters">
+        <form id="filterForm" method="get" action="/stays/hotels">
+
+          <h6 class="filter-title">Filters</h6>
+
+          <!-- keep q, dates and guests when applying filters -->
+          <input type="hidden" name="q" value="<%= filters.q || '' %>">
+          <input type="hidden" name="checkin" value="<%= filters.checkin || '' %>">
+          <input type="hidden" name="checkout" value="<%= filters.checkout || '' %>">
+          <input type="hidden" name="guests" value="<%= filters.guests || '' %>">
+
+          <!-- PRICE -->
+          <label for="priceSlider">Max Price: ₹ <span id="priceShow"><%= filters.price_max || maxPrice %></span></label>
+          <input id="priceSlider" type="range" name="price_max" min="0" max="<%= maxPrice %>" value="<%= filters.price_max || maxPrice %>" class="form-range" aria-label="Maximum price">
+
+          <div class="divide"></div>
+
+          <!-- STARS -->
+          <label for="starsSelect">Stars</label>
+          <select id="starsSelect" name="stars" class="form-select form-select-sm" aria-label="Star rating">
+            <option value="" <%= !filters.stars ? 'selected' : '' %>>Any</option>
+            <option value="5" <%=filters.stars=='5' ?'selected':'' %>>5★</option>
+            <option value="4" <%=filters.stars=='4' ?'selected':'' %>>4★</option>
+            <option value="3" <%=filters.stars=='3' ?'selected':'' %>>3★</option>
+            <option value="2" <%=filters.stars=='2' ?'selected':'' %>>2★</option>
+            <option value="1" <%=filters.stars=='1' ?'selected':'' %>>1★</option>
+          </select>
+
+          <div class="divide"></div>
+
+          <!-- AMENITIES -->
+          <label>Amenities</label>
+          <div style="max-height:140px; overflow:auto;">
+            <% (amenities || []).forEach(a => { %>
+              <div class="form-check">
+                <!-- note name as array so multiple amenity codes are sent -->
+                <input class="form-check-input" type="checkbox" name="amenities[]" value="<%= a.code %>"
+                  id="amen-<%= a.code %>" <%= (filters.amenities && Array.isArray(filters.amenities) && filters.amenities.indexOf(a.code)!==-1) ? 'checked' : '' %> >
+                <label class="form-check-label" for="amen-<%= a.code %>">
+                  <%= a.label %>
+                </label>
+              </div>
+            <% }) %>
+          </div>
+
+          <div class="divide"></div>
+
+          <!-- ROOM TYPE -->
+          <label for="roomTypeSelect">Room Type</label>
+          <select id="roomTypeSelect" name="room_type" class="form-select form-select-sm" aria-label="Room type">
+            <option value="" <%= !filters.room_type ? 'selected' : '' %>>Any</option>
+            <option value="Deluxe" <%= filters.room_type==='Deluxe' ? 'selected' : '' %>>Deluxe</option>
+            <option value="Suite" <%= filters.room_type==='Suite' ? 'selected' : '' %>>Suite</option>
+            <option value="Standard" <%= filters.room_type==='Standard' ? 'selected' : '' %>>Standard</option>
+            <option value="Single" <%= filters.room_type==='Single' ? 'selected' : '' %>>Single</option>
+          </select>
+
+          <button type="submit" class="btn btn-primary w-100 mt-2">Apply Filters</button>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- ========== HOTEL RESULTS ========== -->
+    <div class="col-lg-9">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0 fw-semibold"><%= total %> Stays found</h5>
+        <!-- mobile filter toggle -->
+        <button class="btn btn-outline-secondary mobile-filter-btn" style="display:none" id="openFilters">Filters</button>
+      </div>
+
+      <% if (hotels && hotels.length) { %>
+        <div class="row g-4">
+          <% hotels.forEach(h => { %>
+            <div class="col-md-6 col-lg-4">
+              <div class="hotel-card" role="article" aria-label="Hotel <%= h.name %>">
+
+                <img src="<%= h.image || '/assets/hotel-placeholder.jpg' %>" alt="<%= h.name %>" class="hotel-img" />
+
+                <div class="hotel-info">
+                  <p class="hotel-name"><%= h.name %></p>
+                  <p class="hotel-loc"><%= h.city %> <% if (h.country) { %>, <%= h.country %><% } %></p>
+
+                  <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span class="rating-badge" title="Star rating"><%= h.star_rating || 0 %> ★</span>
+                    <span class="price-text">₹ <%= (typeof h.min_price === 'number') ? h.min_price.toLocaleString('en-IN') : h.min_price %></span>
+                  </div>
+
+                  <% if (h.amenities && h.amenities.length) { %>
+                    <div class="mt-2">
+                      <% h.amenities.slice(0,3).forEach(am => { %>
+                        <span class="amenity-badge"><%= am %></span>
+                      <% }) %>
+                      <% if (h.amenities.length > 3) { %>
+                        <span class="amenity-badge">+<%= h.amenities.length - 3 %> more</span>
+                      <% } %>
+                    </div>
+                  <% } %>
+
+                  <a class="btn btn-outline-primary w-100 mt-3" href="/hotel/<%= h.hotel_id %>">View</a>
+                </div>
+
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="alert alert-warning mt-4">No hotels match your filters.</div>
+      <% } %>
+
+    </div>
+
+  </div>
+
+</section>
+
+<script>
+  (function () {
+    // safe element refs
+    const priceSlider = document.getElementById('priceSlider');
+    const priceShow = document.getElementById('priceShow');
+    if (priceSlider && priceShow) {
+      priceSlider.addEventListener('input', () => {
+        priceShow.textContent = priceSlider.value;
+      });
+    }
+
+    // quick search auto-submit (debounced)
+    const searchForm = document.getElementById('searchForm');
+    const qInput = searchForm ? searchForm.querySelector('input[name="q"]') : null;
+    let timer = null;
+    if (qInput) {
+      qInput.addEventListener('input', function () {
+        if (timer) clearTimeout(timer);
+        // only auto-submit when user stops typing for 800ms and when q length >= 2
+        const val = qInput.value || '';
+        if (val.length < 2) return;
+        timer = setTimeout(() => {
+          // keep existing filters in hidden inputs in the sidebar form
+          searchForm.submit();
+        }, 800);
+      });
+    }
+
+    // prevent double submit for both forms
+    ['searchForm', 'filterForm'].forEach(id => {
+      const form = document.getElementById(id);
+      if (!form) return;
+      form.addEventListener('submit', function (e) {
+        // find first submit button in form
+        const btn = form.querySelector('button[type="submit"], button.btn');
+        if (btn) {
+          btn.disabled = true;
+          // re-enable after short time to avoid locking (graceful)
+          setTimeout(() => btn.disabled = false, 1500);
+        }
+      });
+    });
+
+    // mobile filter open (shows filter-box as modal-like for small screens)
+    const openFilters = document.getElementById('openFilters');
+    const filterBox = document.querySelector('.filter-box');
+    if (openFilters && filterBox) {
+      openFilters.addEventListener('click', () => {
+        // simple toggle: show/hide (for a better UX you can implement a modal)
+        if (getComputedStyle(filterBox).display === 'none') {
+          filterBox.style.display = 'block';
+          openFilters.textContent = 'Close';
+        } else {
+          filterBox.style.display = 'none';
+          openFilters.textContent = 'Filters';
+        }
+      });
+    }
+
+  })();
+</script>

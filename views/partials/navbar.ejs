@@ -1,0 +1,171 @@
+<!-- views/partials/navbar.ejs -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold text-primary" href="/home">EverJourney</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav mx-auto">
+        <!-- HOTELS (stays) -->
+        <li class="nav-item">
+          <a class="nav-link <%= activePage === 'hotels' ? 'active' : '' %>" href="/stays/hotels">Hotels</a>
+        </li>
+
+        <!-- TRAVEL / TRANSPORT (replaces Packages) -->
+        <li class="nav-item">
+          <a class="nav-link <%= activePage === 'transport' ? 'active' : '' %>" href="/transport">Travel</a>
+        </li>
+
+        <!-- DEALS (unchanged) -->
+        <li class="nav-item">
+          <a class="nav-link <%= activePage === 'deals' ? 'active' : '' %>" href="/deals">Deals</a>
+        </li>
+
+        <!-- SUPPORT (unchanged) -->
+        <li class="nav-item">
+          <a class="nav-link <%= activePage === 'support' ? 'active' : '' %>" href="/support">Support</a>
+        </li>
+
+        <% if (currentUser && currentUser.role === 'admin') { %>
+          <li class="nav-item">
+            <a class="nav-link text-danger fw-semibold <%= activePage === 'admin' ? 'active' : '' %>" href="/admin/dashboard">Admin Dashboard</a>
+          </li>
+        <% } %>
+      </ul>
+
+      <div class="d-flex align-items-center gap-2">
+        <!-- Search -->
+        <form class="d-none d-md-flex me-2" action="/search" method="GET" role="search" aria-label="Site search">
+          <div class="input-group">
+            <input name="q" class="form-control form-control-sm" type="search"
+                   placeholder="Search hotels, travel..." aria-label="Search">
+            <button class="btn btn-outline-secondary btn-sm" type="submit" aria-label="Submit search">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </form>
+
+        <!-- Bookings: if not logged in, send to auth landing with redirect -->
+        <% const bookingsHref = currentUser ? '/bookings' : '/auth?redirect=/bookings'; %>
+        <a id="bookingsBtn" href="<%= bookingsHref %>" class="btn btn-outline-primary btn-sm position-relative" aria-label="My bookings">
+          <i class="bi bi-bag-fill"></i>
+          <span class="d-none d-md-inline ms-1">Bookings</span>
+          <% if (typeof cartCount !== 'undefined' && cartCount > 0) { %>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              <%= cartCount %><span class="visually-hidden">items</span>
+            </span>
+          <% } %>
+        </a>
+
+        <!-- Theme toggle -->
+        <button id="themeToggleBtn" type="button" class="btn btn-sm btn-outline-secondary" title="Toggle theme" aria-label="Toggle theme">
+          <i id="themeIcon" class="bi"></i>
+        </button>
+
+        <!-- Auth -->
+        <% if (!currentUser) { %>
+          <!-- Go to auth landing (User vs Vendor) -->
+          <a href="/auth" class="btn btn-primary btn-sm">Login / Signup</a>
+        <% } else { %>
+          <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle btn-sm d-flex align-items-center" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle fs-5 me-1"></i>
+              <span class="d-none d-md-inline"><%= currentUser.name || currentUser.email %></span>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+              <% if (currentUser.role === 'user') { %>
+                <li><a class="dropdown-item" href="/profile">My Profile</a></li>
+                <li><a class="dropdown-item" href="/bookings">My Bookings</a></li>
+                <li><a class="dropdown-item" href="/reviews">My Reviews</a></li>
+                <li><a class="dropdown-item" href="/wishlist">Wishlist</a></li>
+              <% } else if (currentUser.role === 'admin') { %>
+                <li><a class="dropdown-item" href="/admin/profile">Admin Profile</a></li>
+                <li><a class="dropdown-item" href="/admin/create-hotel">Add Hotel Listing</a></li>
+                <li><a class="dropdown-item" href="/admin/create-travel">Add Travel Listing</a></li>
+                <li><a class="dropdown-item" href="/admin/manage-users">Manage Users</a></li>
+                <li><a class="dropdown-item" href="/admin/reports">Reports & Analytics</a></li>
+              <% } %>
+
+              <li><hr class="dropdown-divider"></li>
+
+              <li>
+                <form action="/auth/logout" method="POST" class="m-0">
+                  <button type="submit" class="dropdown-item text-danger fw-bold">
+                    <i class="bi bi-box-arrow-right me-1"></i> Logout
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Minimal dark theme CSS overrides (applies when html[data-theme="dark"]) -->
+<style>
+  html[data-theme="dark"] { color-scheme: dark; }
+  html[data-theme="dark"] body { background: #0b1220; color: #e6eef8; }
+  html[data-theme="dark"] .navbar { background: #081026 !important; box-shadow: 0 6px 18px rgba(0,0,0,0.6) !important; }
+  html[data-theme="dark"] .navbar .nav-link,
+  html[data-theme="dark"] .navbar .navbar-brand,
+  html[data-theme="dark"] .navbar .btn,
+  html[data-theme="dark"] .navbar .dropdown-menu { color: #e6eef8 !important; }
+  html[data-theme="dark"] .card { background: #071024; color: #e6eef8; }
+  html[data-theme="dark"] .btn-outline-primary { color: #cfe0ff; border-color: rgba(99, 140, 255, 0.25); }
+  html[data-theme="dark"] .badge.bg-danger { background: #ff6b6b; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  (function() {
+    const btn = document.getElementById('themeToggleBtn');
+    const icon = document.getElementById('themeIcon');
+
+    function setTheme(t) {
+      try {
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('ever_theme', t);
+        refreshIcon(t);
+      } catch (e) { console.warn('theme set failed', e); }
+    }
+    function refreshIcon(theme) {
+      const th = theme || document.documentElement.getAttribute('data-theme') || 'light';
+      if (!icon) return;
+      icon.className = '';
+      if (th === 'dark') icon.classList.add('bi','bi-moon-fill');
+      else icon.classList.add('bi','bi-sun-fill');
+    }
+
+    const persisted = localStorage.getItem('ever_theme');
+    if (persisted === 'light' || persisted === 'dark') {
+      setTheme(persisted);
+    } else {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+    }
+
+    btn?.addEventListener('click', function(e) {
+      e.preventDefault();
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      if (window.EverTheme && typeof window.EverTheme.toggle === 'function') {
+        try { window.EverTheme.toggle(); } catch (e) { setTheme(next); }
+      } else {
+        setTheme(next);
+      }
+      window.dispatchEvent(new CustomEvent('theme:changed', { detail: { theme: next } }));
+    });
+
+    window.addEventListener('theme:changed', (ev) => refreshIcon(ev.detail?.theme));
+    document.addEventListener('DOMContentLoaded', () => refreshIcon());
+    refreshIcon();
+  })();
+</script>

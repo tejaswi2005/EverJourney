@@ -1,0 +1,202 @@
+<!-- views/profile/user.ejs -->
+<%
+  // small helpers
+  const fmtINR = (v) => {
+    if (v === null || v === undefined) return "0";
+    const n = Number(v);
+    if (Number.isNaN(n)) return "0";
+    try { return n.toLocaleString("en-IN"); } catch (e) { return String(n); }
+  };
+  const user = currentUser || {};
+%>
+
+<style>
+  .profile-page { padding: 2rem 0; }
+  .profile-grid { display: grid; grid-template-columns: 280px 1fr; gap: 1.25rem; }
+  .side-card { background:#fff; padding:1rem; border-radius:.7rem; box-shadow:0 6px 18px rgba(0,0,0,.04); }
+  .main-card { background:#fff; padding:1rem; border-radius:.7rem; box-shadow:0 6px 18px rgba(0,0,0,.04); }
+  .avatar { width:82px; height:82px; border-radius:50%; object-fit:cover; }
+  .section-title { font-weight:600; margin-bottom:.6rem; }
+  .muted { color:#6b7280; font-size:.95rem; }
+  .small-btn { padding:.35rem .6rem; border-radius:.5rem; font-size:.85rem; }
+  @media(max-width:991px){ .profile-grid { grid-template-columns: 1fr; } }
+</style>
+
+<section class="container profile-page">
+  <div class="profile-grid">
+    <!-- LEFT: profile summary & nav -->
+    <div class="side-card">
+      <div class="d-flex align-items-center gap-3">
+        <img src="<%= user.profile_photo_url || '/assets/avatar-placeholder.png' %>" alt="avatar" class="avatar">
+        <div>
+          <div style="font-weight:700;"><%= user.first_name ? (user.first_name + (user.last_name ? ' ' + user.last_name : '')) : (user.email || 'Guest') %></div>
+          <div class="muted" style="font-size:.85rem;"><%= user.email %></div>
+        </div>
+      </div>
+
+      <hr style="margin: .8rem 0;">
+      <nav aria-label="Profile navigation">
+        <ul class="list-unstyled">
+          <li><a href="#profile-info" class="d-block py-2">Profile Info</a></li>
+          <li><a href="#bookings" class="d-block py-2">My Bookings <span class="muted">(<%= (bookings && bookings.length) ? bookings.length : 0 %>)</span></a></li>
+          <li><a href="#addresses" class="d-block py-2">Addresses</a></li>
+          <li><a href="#reviews" class="d-block py-2">My Reviews <span class="muted">(<%= (userReviews && userReviews.length) ? userReviews.length : 0 %>)</span></a></li>
+          <li><a href="#invoices" class="d-block py-2">Invoices</a></li>
+          <li><a href="#security" class="d-block py-2">Security</a></li>
+          <li><a href="/auth/logout" class="d-block py-2 text-danger">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- RIGHT: content -->
+    <div class="main-card">
+      <!-- PROFILE INFO -->
+      <section id="profile-info" class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="section-title">Profile Info</h4>
+          <a href="#edit-profile" class="small-btn btn btn-outline-secondary">Edit</a>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="muted">Name</div>
+            <div style="font-weight:600;"><%= user.first_name ? (user.first_name + (user.last_name ? ' ' + user.last_name : '')) : '-' %></div>
+          </div>
+          <div class="col-md-6">
+            <div class="muted">Email</div>
+            <div style="font-weight:600;"><%= user.email || '-' %></div>
+          </div>
+          <div class="col-md-6 mt-2">
+            <div class="muted">Phone</div>
+            <div><%= user.phone || '-' %></div>
+          </div>
+          <div class="col-md-6 mt-2">
+            <div class="muted">DOB</div>
+            <div><%= user.dob ? new Date(user.dob).toLocaleDateString() : '-' %></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BOOKINGS -->
+      <section id="bookings" class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="section-title">My Bookings</h4>
+          <a href="/bookings" class="small-btn btn btn-outline-primary">View all</a>
+        </div>
+
+        <% if (bookings && bookings.length) { %>
+          <% bookings.slice(0,6).forEach(b => { %>
+            <div class="p-3 mb-2" style="border:1px solid #eef2f7; border-radius:.6rem;">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <div style="font-weight:600;"><%= b.booking_ref || b.id %> — <span class="muted"><%= b.status %></span></div>
+                  <div class="muted">From <strong><%= new Date(b.created_at).toLocaleDateString() %></strong></div>
+                  <div class="muted">Total: ₹ <%= fmtINR(b.total_amount) %></div>
+                </div>
+                <div class="text-end">
+                  <a href="/booking/<%= b.id %>" class="btn btn-outline-secondary btn-sm">View</a>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="text-muted p-3">No bookings yet. Search hotels and start your first trip!</div>
+        <% } %>
+      </section>
+
+      <!-- ADDRESSES -->
+      <section id="addresses" class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="section-title">Addresses</h4>
+          <a href="/profile/addresses/new" class="small-btn btn btn-outline-primary">Add address</a>
+        </div>
+
+        <% if (addresses && addresses.length) { %>
+          <div class="row mt-2">
+            <% addresses.forEach(a => { %>
+              <div class="col-md-6">
+                <div class="p-3 mb-2" style="border:1px solid #eef2f7; border-radius:.6rem;">
+                  <div style="font-weight:600;"><%= a.label || 'Address' %> <% if (a.is_default) { %><span class="muted">• Default</span><% } %></div>
+                  <div class="muted"><%= a.line1 %> <%= a.line2 ? ', ' + a.line2 : '' %></div>
+                  <div class="muted"><%= a.city || '' %> <%= a.postal_code ? '- ' + a.postal_code : '' %></div>
+                  <div class="mt-2"><a href="/profile/addresses/edit/<%= a.id %>" class="btn btn-outline-secondary btn-sm">Edit</a></div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="text-muted p-3">No saved addresses.</div>
+        <% } %>
+      </section>
+
+      <!-- REVIEWS -->
+      <section id="reviews" class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="section-title">My Reviews</h4>
+          <a href="/reviews" class="small-btn btn btn-outline-primary">All reviews</a>
+        </div>
+
+        <% if (userReviews && userReviews.length) { %>
+          <% userReviews.forEach(r => { %>
+            <div style="border-top:1px solid #f1f5f9; padding: .6rem 0;">
+              <div><strong><%= r.title %></strong> <span class="muted">• <%= r.rating %>★</span></div>
+              <div class="muted"><%= new Date(r.created_at).toLocaleDateString() %> — <%= r.hotel_name || r.transport_name || '' %></div>
+              <div style="margin-top:.4rem;"><%= r.comment %></div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="text-muted p-3">You haven't left any reviews yet.</div>
+        <% } %>
+      </section>
+
+      <!-- INVOICES -->
+      <section id="invoices" class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="section-title">Invoices</h4>
+          <a href="/invoices" class="small-btn btn btn-outline-primary">View invoices</a>
+        </div>
+
+        <% if (invoices && invoices.length) { %>
+          <div class="mt-2">
+            <% invoices.slice(0,6).forEach(inv => { %>
+              <div class="d-flex justify-content-between align-items-center p-2" style="border-bottom:1px solid #f1f5f9;">
+                <div>
+                  <div><strong><%= inv.invoice_number %></strong></div>
+                  <div class="muted"><%= new Date(inv.issue_date).toLocaleDateString() %></div>
+                </div>
+                <div>
+                  <div>₹ <%= fmtINR(inv.amount) %></div>
+                  <a href="<%= inv.pdf_url || ('/invoices/download/' + inv.id) %>" class="btn btn-outline-secondary btn-sm">Download</a>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="text-muted p-3">No invoices yet.</div>
+        <% } %>
+      </section>
+
+      <!-- SECURITY -->
+      <section id="security" class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="section-title">Security</h4>
+          <a href="#change-password" class="small-btn btn btn-outline-secondary">Change password</a>
+        </div>
+
+        <div class="mt-2">
+          <form method="post" action="/profile/change-password" class="row g-2">
+            <div class="col-md-4">
+              <input class="form-control" name="current_password" placeholder="Current password" type="password" required>
+            </div>
+            <div class="col-md-4">
+              <input class="form-control" name="new_password" placeholder="New password" type="password" required minlength="8">
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-primary w-100" type="submit">Update password</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>

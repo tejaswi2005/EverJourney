@@ -1,0 +1,170 @@
+<!-- views/auth/index.ejs -->
+
+<style>
+  .auth-page {
+  min-height: calc(95vh - 70px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+
+  /* Background image */
+  background-image: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80");
+  background-size: cover;          /* cover full area */
+  background-position: center;     /* center focus */
+  background-repeat: no-repeat;
+  /* background-attachment: fixed;    nice subtle parallax on scroll (optional) */
+}
+
+/* Optional: add a soft overlay if your cards are hard to read */
+/* .auth-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    to bottom right,
+    rgba(10, 46, 99, 0.45),
+    rgba(7, 94, 166, 0.35)
+  );
+  z-index: -1;
+} */
+
+
+  .auth-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .auth-heading {
+    color: #03080e;
+    font-size: 1.65rem;
+  }
+
+  .auth-subtitle {
+    color: #091a2e;
+    font-size: 0.95rem;
+  }
+
+  .auth-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+    padding: 1.6rem 1.75rem;
+    height: 100%;
+  }
+
+  .auth-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #2563eb;
+    margin-bottom: 0.4rem;
+  }
+
+  .auth-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    color: #0f172a;
+  }
+
+  .auth-desc {
+    font-size: 0.9rem;
+    color: #64748b;
+  }
+
+  .auth-card ul {
+    font-size: 0.87rem;
+    color: #475569;
+    margin: 1rem 0;
+  }
+
+  .auth-card li + li {
+    margin-top: 0.25rem;
+  }
+
+  .auth-btn {
+    font-size: 0.78rem;
+    padding: 0.42rem 1rem;
+    border-radius: 999px;
+  }
+</style>
+
+<section class="auth-page">
+  <div class="auth-wrapper w-100">
+    
+    <!-- Heading -->
+    <div class="text-center mb-4">
+      <h2 class="auth-heading fw-semibold mb-1">
+        Choose how you want to continue
+      </h2>
+      <p class="auth-subtitle mb-0">
+        Login as a traveller or partner and continue your EverJourney experience.
+      </p>
+    </div>
+
+    <!-- Cards Row -->
+    <div class="row g-3">
+
+      <!-- ================= Vendor Card ================= -->
+      <div class="col-md-6">
+        <div class="auth-card">
+          <div class="mb-2">
+            <div class="auth-tag">Vendor Partner</div>
+            <div class="auth-title">Join as a Vendor</div>
+            <p class="auth-desc mb-0">
+              For hotel owners and travel service partners.
+            </p>
+          </div>
+
+          <ul class="ps-3">
+            <li>List your hotel or travel services</li>
+            <li>Manage rates, rooms & bookings</li>
+            <li>Grow your business with EverJourney</li>
+          </ul>
+
+          <div class="d-flex flex-wrap gap-2">
+            <a href="/vendor/join" class="btn btn-primary auth-btn">
+              Vendor Options
+            </a>
+            <!-- <a href="/vendor/signup" class="btn btn-outline-primary auth-btn">
+              Register as Vendor
+            </a> -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= User Card ================= -->
+      <div class="col-md-6">
+        <div class="auth-card">
+          <div class="mb-2">
+            <div class="auth-tag">User</div>
+            <div class="auth-title">Join as a User</div>
+            <p class="auth-desc mb-0">
+              For travellers booking hotels or travel services.
+            </p>
+          </div>
+
+          <ul class="ps-3">
+            <li>Search and book verified stays</li>
+            <li>Find best travel & cab options</li>
+            <li>Fast, secure and smooth booking process</li>
+          </ul>
+
+          <div class="d-flex flex-wrap gap-2">
+            <a href="/login<%= redirect ? ('?redirect=' + encodeURIComponent(redirect)) : '' %>" 
+               class="btn btn-primary auth-btn">
+              User Login
+            </a>
+            <a href="/signup" class="btn btn-outline-primary auth-btn">
+              Create User Account
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

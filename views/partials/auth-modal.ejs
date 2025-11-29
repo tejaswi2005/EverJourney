@@ -1,0 +1,140 @@
+<!-- views/partials/auth-modal.ejs -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-body p-0">
+        <div class="row g-0">
+          <div class="col-md-5 d-none d-md-flex align-items-center justify-content-center" style="background:linear-gradient(180deg,#eef2ff,#ffffff);">
+            <div style="padding:2rem; max-width:300px; text-align:center;">
+              <h4 class="fw-bold text-primary">Welcome to EverJourney</h4>
+              <p class="text-muted">Sign in to view bookings, manage your trips and get faster checkout.</p>
+              <img src="/assets/login-illustration.svg" alt="travel" style="max-width:220px; width:100%;">
+            </div>
+          </div>
+
+          <div class="col-12 col-md-7">
+            <div class="p-3 p-md-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 id="authModalLabel" class="mb-0">Sign in</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+
+              <ul class="nav nav-tabs mb-3" id="authTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">Login</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup-tab-pane" type="button" role="tab" aria-controls="signup-tab-pane" aria-selected="false">Sign up</button>
+                </li>
+              </ul>
+
+              <div class="tab-content">
+                <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab">
+                  <form id="authModalLoginForm" method="post" action="/auth/login">
+                    <input type="hidden" name="redirect" value="/bookings">
+                    <div class="mb-2">
+                      <label class="form-label small">Email</label>
+                      <input class="form-control" type="email" name="email" required placeholder="you@domain.com">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label small">Password</label>
+                      <input class="form-control" type="password" name="password" required placeholder="Password">
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="remember" id="authRemember">
+                        <label class="form-check-label small" for="authRemember">Remember me</label>
+                      </div>
+                      <a href="/auth/forgot" class="small">Forgot?</a>
+                    </div>
+                    <div class="mb-2">
+                      <button type="submit" class="btn btn-primary w-100">Sign in</button>
+                    </div>
+                  </form>
+                </div>
+
+                <div class="tab-pane fade" id="signup-tab-pane" role="tabpanel" aria-labelledby="signup-tab">
+                  <form id="authModalSignupForm" method="post" action="/auth/signup">
+                    <input type="hidden" name="redirect" value="/bookings">
+                    <div class="row g-2">
+                      <div class="col-md-6">
+                        <label class="form-label small">First name</label>
+                        <input class="form-control" name="first_name" required>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label small">Last name</label>
+                        <input class="form-control" name="last_name">
+                      </div>
+                    </div>
+
+                    <div class="mb-2 mt-2">
+                      <label class="form-label small">Email</label>
+                      <input class="form-control" type="email" name="email" required>
+                    </div>
+
+                    <div class="row g-2">
+                      <div class="col-md-6">
+                        <label class="form-label small">Password</label>
+                        <input class="form-control" type="password" name="password" required minlength="8">
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label small">Confirm password</label>
+                        <input class="form-control" type="password" name="password_confirm" required minlength="8">
+                      </div>
+                    </div>
+
+                    <div class="form-check mt-3 mb-2">
+                      <input class="form-check-input" type="checkbox" name="accept_terms" id="authAcceptTerms" required>
+                      <label class="form-check-label small" for="authAcceptTerms">I agree to the <a href="/terms">Terms</a>.</label>
+                    </div>
+
+                    <div class="mb-2">
+                      <button type="submit" class="btn btn-primary w-100">Create account</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <div class="text-center small text-muted mt-2">By continuing you accept our terms and privacy policy.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  (function () {
+    const authModalEl = document.getElementById('authModal');
+    const authModal = authModalEl ? new bootstrap.Modal(authModalEl) : null;
+    const bookingsBtn = document.getElementById('bookingsBtn');
+
+    if (bookingsBtn) {
+      bookingsBtn.addEventListener('click', function (e) {
+        const href = (this.getAttribute('href') || '');
+        if (href.indexOf('/auth/login') === 0 || href.indexOf('/auth') === 0) {
+          e.preventDefault();
+          if (authModal) authModal.show();
+        }
+      });
+    }
+
+    ['authModalLoginForm', 'authModalSignupForm'].forEach(id => {
+      const form = document.getElementById(id);
+      if (!form) return;
+      form.addEventListener('submit', function () {
+        const btn = this.querySelector('button[type="submit"]');
+        if (btn) btn.disabled = true;
+      });
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('auth') === 'signup' && authModal) {
+      authModal.show();
+      const signupTab = document.querySelector('#authTab button[data-bs-target="#signup-tab-pane"]');
+      if (signupTab) signupTab.click();
+    }
+  })();
+</script>

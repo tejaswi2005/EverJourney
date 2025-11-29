@@ -1,23 +1,3 @@
-// // Navbar scroll effect
-// window.addEventListener("scroll", () => {
-//   const navbar = document.querySelector(".navbar");
-//   if (window.scrollY > 50) {
-//     navbar.classList.add("scrolled");
-//   } else {
-//     navbar.classList.remove("scrolled");
-//   }
-// });
-
-// // Example: Show alert on search form submission
-// document.addEventListener("DOMContentLoaded", () => {
-//   const forms = document.querySelectorAll("form");
-//   forms.forEach(form => {
-//     form.addEventListener("submit", e => {
-//       e.preventDefault();
-//       alert("Search functionality coming soon 🚀");
-//     });
-//   });
-// });
 
 
 document.getElementById('travel-tab').addEventListener('click', function() {

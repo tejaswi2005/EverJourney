@@ -1,0 +1,358 @@
+<!-- views/stays/roomDetails.ejs -->
+
+<style>
+  body { background:#f5f7fb; }
+  .page-section { padding:1.5rem 0 3rem; }
+  .card { background:#fff; border-radius:.75rem; box-shadow:0 6px 18px rgba(15,23,42,.06); border:none; }
+
+  .room-hero-wrap { display:flex; gap:1.25rem; flex-wrap:wrap; }
+  .room-hero-left { flex:1 1 55%; min-width:260px; }
+  .room-hero-right { flex:1 1 35%; min-width:260px; }
+
+  .room-main-img { width:100%; height:320px; object-fit:cover; border-radius:.7rem; }
+  .thumbs { display:flex; gap:.45rem; margin-top:.5rem; flex-wrap:wrap; }
+  .thumbs img { width:86px; height:68px; object-fit:cover; border-radius:.45rem; cursor:pointer; border:2px solid transparent; }
+  .thumbs img.active { border-color:#0b5cff; }
+
+  .room-title { font-size:1.4rem; font-weight:700; margin-bottom:.15rem; }
+  .hotel-name-link { font-size:.9rem; color:#2563eb; text-decoration:none; }
+  .hotel-name-link:hover { text-decoration:underline; }
+  .room-meta-line { font-size:.9rem; color:#6b7280; }
+
+  .rating-pill { display:inline-block; font-size:.85rem; padding:.2rem .6rem; border-radius:999px; background:#f9fafb; border:1px solid #e5e7eb; }
+
+  .section-title { font-weight:600; font-size:1.05rem; margin-bottom:.3rem; }
+  .section-sub { font-size:.9rem; color:#6b7280; }
+
+  .amenities-list { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.4rem; }
+  .amenity-badge { font-size:.8rem; padding:.22rem .55rem; border-radius:.6rem; background:#f1f5f9; color:#374151; }
+
+  .price-big { font-size:1.4rem; font-weight:700; color:#0b5cff; }
+  .form-label { font-size:.82rem; font-weight:500; color:#4b5563; }
+
+  @media(max-width: 991px) {
+    .room-main-img { height:240px; }
+  }
+</style>
+
+<%
+  const fmtINR = (v) => {
+    if (v === null || v === undefined) return "0";
+    const num = Number(v);
+    if (Number.isNaN(num)) return "0";
+    try { return num.toLocaleString("en-IN"); } catch (e) { return String(num); }
+  };
+
+  // ---------- GALLERY: room images first, then hotel images fallback ----------
+  const roomImgs = (room_images && room_images.length)
+    ? room_images
+    : (hotel && hotel.images ? hotel.images : []);
+
+  const heroImgObj = roomImgs.length
+    ? (roomImgs.find(i => i.is_primary) || roomImgs[0])
+    : null;
+
+  const heroImgUrl = heroImgObj ? heroImgObj.url : "/assets/hotel-placeholder.jpg";
+
+  // starting rate for header
+  const startingRate = (rates && rates.length) ? rates[0] : null;
+%>
+
+<section class="container page-section">
+
+  <!-- HERO: gallery + info + booking -->
+  <div class="card p-3 p-md-4">
+    <div class="room-hero-wrap">
+
+      <!-- LEFT: GALLERY (max 3-4 images) -->
+      <div class="room-hero-left">
+        <img id="mainImg"
+             src="<%= heroImgUrl %>"
+             alt="<%= room_type ? room_type.name : 'Room' %>"
+             class="room-main-img">
+
+        <div class="thumbs">
+          <% if (roomImgs && roomImgs.length) { %>
+            <% roomImgs.slice(0,4).forEach((img, idx) => { %>
+              <img src="<%= img.url %>"
+                   alt="<%= img.alt_text || (room_type ? room_type.name + ' image ' + (idx+1) : 'image') %>"
+                   class="<%= idx===0 ? 'active' : '' %>"
+                   data-src="<%= img.url %>">
+            <% }) %>
+          <% } else { %>
+            <img src="/assets/hotel-placeholder.jpg" alt="placeholder" class="active">
+          <% } %>
+        </div>
+      </div>
+
+      <!-- RIGHT: BASIC INFO + BOOKING FORM -->
+      <div class="room-hero-right">
+        <!-- Info -->
+        <div class="mb-3">
+          <div class="room-title"><%= room_type ? room_type.name : 'Room' %></div>
+
+          <% if (hotel) { %>
+            <a href="/hotel/<%= hotel.id %>" class="hotel-name-link">
+              <%= hotel.name %> • <%= hotel.city || '' %><% if (hotel.country) { %>, <%= hotel.country %><% } %>
+            </a>
+          <% } %>
+
+          <div class="room-meta-line mt-2">
+            Max guests:
+            <%= room_type && room_type.max_guests ? room_type.max_guests : 2 %>
+            <% if (room_type && room_type.area_sq_m) { %>
+              • Area: <%= room_type.area_sq_m %> m²
+            <% } %>
+          </div>
+
+          <% if (hotel && hotel.star_rating) { %>
+            <div class="mt-2">
+              <span class="rating-pill"><%= hotel.star_rating %>★ property</span>
+            </div>
+          <% } %>
+
+          <div class="mt-3 section-sub" style="color:#374151;">
+            <%= room_type && room_type.description
+                  ? room_type.description
+                  : 'A comfortable, well-designed room type at this property.' %>
+          </div>
+        </div>
+
+        <!-- BOOKING FORM (no "check availability", this is direct booking) -->
+        <div class="card p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div style="font-size:.9rem; color:#6b7280;">Book this room</div>
+            <div class="text-end">
+              <% if (startingRate) { %>
+                <div class="price-big">
+                  ₹ <%= fmtINR(startingRate.price) %>
+                  <span style="font-size:.75rem; font-weight:400; color:#6b7280;">/ night</span>
+                </div>
+              <% } else { %>
+                <div class="price-big">₹ 0<span style="font-size:.75rem;"> / night</span></div>
+              <% } %>
+            </div>
+          </div>
+
+          <form id="roomBookingForm" method="post" action="/book/hotel">
+            <!-- schema-based fields -->
+            <input type="hidden" name="hotel_id" value="<%= hotel ? hotel.id : '' %>">
+            <input type="hidden" name="room_type_id" value="<%= room_type ? room_type.id : '' %>">
+
+            <!-- Rate plan -->
+            <div class="mb-2">
+              <label class="form-label">Rate plan</label>
+              <select name="room_type_rate_id" id="rateSelect" class="form-select" required>
+                <option value="">Select rate</option>
+                <% if (rates && rates.length) { %>
+                  <% rates.forEach(rate => { %>
+                    <option value="<%= rate.id %>"
+                            data-price="<%= rate.price %>"
+                            data-minstay="<%= rate.min_stay || 1 %>">
+                      ₹ <%= fmtINR(rate.price) %> <%= rate.currency || 'INR' %> / night
+                      <% if (rate.valid_from || rate.valid_to) { %>
+                        •
+                        <%= rate.valid_from ? 'from ' + rate.valid_from : '' %>
+                        <%= rate.valid_to ? ' to ' + rate.valid_to : '' %>
+                      <% } %>
+                      <% if (rate.min_stay) { %> • min <%= rate.min_stay %> nights <% } %>
+                    </option>
+                  <% }) %>
+                <% } %>
+              </select>
+            </div>
+
+            <!-- Dates -->
+            <div class="row g-2">
+              <div class="col-6 mb-2">
+                <label class="form-label">Check-in</label>
+                <input type="date"
+                       name="checkin"
+                       class="form-control"
+                       value="<%= filters && filters.checkin ? filters.checkin : '' %>"
+                       required>
+              </div>
+              <div class="col-6 mb-2">
+                <label class="form-label">Check-out</label>
+                <input type="date"
+                       name="checkout"
+                       class="form-control"
+                       value="<%= filters && filters.checkout ? filters.checkout : '' %>"
+                       required>
+              </div>
+            </div>
+
+            <!-- Guests & Rooms -->
+            <div class="row g-2">
+              <div class="col-6 mb-2">
+                <label class="form-label">Guests</label>
+                <input type="number"
+                       name="guests"
+                       class="form-control"
+                       min="1"
+                       max="<%= room_type && room_type.max_guests ? room_type.max_guests : 4 %>"
+                       value="<%= filters && filters.guests ? filters.guests : 2 %>"
+                       required>
+              </div>
+              <div class="col-6 mb-2">
+                <label class="form-label">Rooms</label>
+                <input type="number"
+                       name="rooms"
+                       class="form-control"
+                       min="1"
+                       value="1"
+                       required>
+              </div>
+            </div>
+
+            <!-- Estimated total -->
+            <div class="mt-3 mb-2 d-flex justify-content-between align-items-center">
+              <div style="font-size:.86rem; color:#6b7280;">Estimated total</div>
+              <div id="estimatedTotal" class="price-big" style="font-size:1.05rem;">
+                ₹ 0
+              </div>
+            </div>
+            <div style="font-size:.76rem; color:#9ca3af;">
+              Exact taxes, fees and cancellation policy will be shown on the payment page.
+            </div>
+
+            <div class="mt-3">
+              <button type="submit" class="btn btn-primary w-100">
+                Confirm & continue
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MORE INFO -->
+  <div class="row g-3 g-md-4 mt-3">
+    <div class="col-lg-8">
+      <div class="card p-3 p-md-4">
+        <div class="section-title">Room features</div>
+        <p class="section-sub" style="color:#374151;">
+          <%= room_type && room_type.description
+                ? room_type.description
+                : 'This room type is designed to provide a comfortable stay with essential facilities and a pleasant ambience.' %>
+        </p>
+
+        <% if (amenities && amenities.length) { %>
+          <div class="section-title mt-3 mb-1">Amenities in this room</div>
+          <div class="amenities-list">
+            <% amenities.forEach(a => { %>
+              <span class="amenity-badge"><%= a.label || a.name || a %></span>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card p-3 p-md-4">
+        <div class="section-title mb-1">Property details</div>
+        <% if (hotel) { %>
+          <div class="section-sub" style="color:#374151;">
+            <div><strong><%= hotel.name %></strong></div>
+            <div><%= hotel.address_line1 || '' %><%= hotel.address_line2 ? ', ' + hotel.address_line2 : '' %></div>
+            <div>
+              <%= hotel.city || '' %><% if (hotel.country) { %>, <%= hotel.country %><% } %>
+            </div>
+            <% if (hotel.phone) { %><div class="mt-1">Phone: <%= hotel.phone %></div><% } %>
+            <% if (hotel.email) { %><div>Email: <%= hotel.email %></div><% } %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  (function () {
+    // -------- Gallery switching --------
+    const main = document.getElementById('mainImg');
+    if (main) {
+      document.querySelectorAll('.thumbs img').forEach(img => {
+        img.addEventListener('click', function () {
+          document.querySelectorAll('.thumbs img').forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          main.src = this.dataset.src || this.src;
+        });
+      });
+    }
+
+    // -------- Booking estimate --------
+    const form = document.getElementById('roomBookingForm');
+    const rateSelect = document.getElementById('rateSelect');
+    const totalEl = document.getElementById('estimatedTotal');
+
+    function formatINR(n) {
+      try {
+        return new Intl.NumberFormat('en-IN').format(Number(n || 0));
+      } catch (e) {
+        return n;
+      }
+    }
+
+    function computeNights(checkin, checkout) {
+      if (!checkin || !checkout) return 1;
+      const d1 = new Date(checkin);
+      const d2 = new Date(checkout);
+      const diff = (d2 - d1) / (1000 * 60 * 60 * 24);
+      return diff > 0 ? diff : 1;
+    }
+
+    function updateEstimate() {
+      if (!form || !rateSelect || !totalEl) return;
+
+      const opt = rateSelect.options[rateSelect.selectedIndex];
+      if (!opt || !opt.value) {
+        totalEl.textContent = '₹ 0';
+        return;
+      }
+
+      const price = parseFloat(opt.dataset.price || '0');
+      const checkin = form.querySelector('input[name="checkin"]').value;
+      const checkout = form.querySelector('input[name="checkout"]').value;
+      const rooms = parseInt(form.querySelector('input[name="rooms"]').value || '1', 10);
+
+      const nights = computeNights(checkin, checkout);
+      const total = price * nights * (rooms || 1);
+
+      totalEl.textContent = '₹ ' + formatINR(total.toFixed(0));
+    }
+
+    if (form && rateSelect && totalEl) {
+      form.addEventListener('submit', function () {
+        const opt = rateSelect.options[rateSelect.selectedIndex];
+        if (!opt || !opt.value) {
+          alert('Please select a rate plan.');
+          return false;
+        }
+        const checkin = form.querySelector('input[name="checkin"]').value;
+        const checkout = form.querySelector('input[name="checkout"]').value;
+        if (!checkin || !checkout) {
+          alert('Please select check-in and check-out dates.');
+          return false;
+        }
+        if (new Date(checkout) <= new Date(checkin)) {
+          alert('Check-out date must be after check-in date.');
+          return false;
+        }
+        return true;
+      });
+
+      ['change', 'input'].forEach(ev => {
+        rateSelect.addEventListener(ev, updateEstimate);
+      });
+      form.querySelectorAll('input[name="checkin"], input[name="checkout"], input[name="rooms"]')
+        .forEach(el => el.addEventListener('change', updateEstimate));
+
+      // initial estimate
+      updateEstimate();
+    }
+  })();
+</script>

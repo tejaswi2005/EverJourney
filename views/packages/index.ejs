@@ -1,0 +1,272 @@
+
+
+<style>
+  .pkg-section { padding:0.5rem 0; background:#f5f7fb; }
+  .pkg-card { background:#fff; border-radius:.7rem; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,.04); transition:.18s; }
+  .pkg-card:hover { transform:translateY(-6px); box-shadow:0 18px 40px rgba(12,24,50,0.08); }
+  .pkg-img { height:140px; width:100%; object-fit:cover; }
+  .pkg-body { padding:0.85rem 1rem; }
+  .pkg-title { font-weight:700; margin-bottom:.25rem; }
+  .pkg-meta { color:#6b7280; font-size:.9rem; }
+  .filter-side { position:sticky; top:90px; background:#fff; padding:1rem; border-radius:.6rem; box-shadow:0 6px 20px rgba(0,0,0,.04); }
+  .small-muted { color:#6b7280; }
+  .search-row .form-control, .search-row .form-select { height:48px; }
+  .range-row { gap: .5rem; align-items:center; }
+  .range-wrap { display:flex; gap:.5rem; align-items:center; }
+  .range-input { width:100%; }
+  .range-value { min-width:90px; text-align:center; font-weight:600; }
+  @media (max-width:991px){
+    .filter-side { display:none; }
+  }
+
+  /* top search: consistent card-style */
+  .top-search-card {
+    background:#fff;
+    padding:8px;
+    border-radius:.65rem;
+    box-shadow:0 6px 20px rgba(12,24,50,0.04);
+  }
+  .top-search-grid { gap:8px; align-items:center; }
+  .top-search-actions { display:flex; gap:8px; }
+  .btn-clear { border-color:#d1d5db; color:#374151; background:#fff; }
+</style>
+
+<section class="container pkg-section">
+
+  <!-- ===== TOP SEARCH BAR (consistent) ===== -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <div class="top-search-card">
+        <form id="topSearch" method="get" action="/packages" class="row top-search-grid gx-2 gy-2 align-items-center">
+          <!-- Search input (title/description) -->
+          <div class="col-12 col-md-6">
+            <label class="small text-muted mb-1 d-none d-md-block">Search packages</label>
+            <input name="q" class="form-control" placeholder="Search packages — e.g. Goa, 'Romantic getaway', 'Beach package'" value="<%= filters.q || '' %>">
+            <div class="small text-muted mt-1 d-none d-md-block">Search by package title or description — press Enter or click Search.</div>
+          </div>
+
+          <!-- Destination -->
+          <div class="col-6 col-md-2">
+            <label class="small text-muted mb-1 d-none d-md-block">Destination</label>
+            <input name="dest" class="form-control" placeholder="City (e.g. Goa)" value="<%= filters.dest || '' %>">
+          </div>
+
+          <!-- Nights -->
+          <div class="col-6 col-md-1">
+            <label class="small text-muted mb-1 d-none d-md-block">Nights</label>
+            <select name="nights" class="form-select">
+              <option value="">Any</option>
+              <option value="1" <%= String(filters.nights) === '1' ? 'selected' : '' %>>1</option>
+              <option value="2" <%= String(filters.nights) === '2' ? 'selected' : '' %>>2</option>
+              <option value="3" <%= String(filters.nights) === '3' ? 'selected' : '' %>>3</option>
+              <option value="4" <%= String(filters.nights) === '4' ? 'selected' : '' %>>4</option>
+              <option value="5" <%= String(filters.nights) === '5' ? 'selected' : '' %>>5+</option>
+            </select>
+          </div>
+
+          <!-- Sort -->
+          <div class="col-8 col-md-2">
+            <label class="small text-muted mb-1 d-none d-md-block">Sort</label>
+            <select name="sort" class="form-select">
+              <option value="relevance" <%= filters.sort==='relevance' ? 'selected' : '' %>>Relevance</option>
+              <option value="price_asc" <%= filters.sort==='price_asc' ? 'selected' : '' %>>Price: Low → High</option>
+              <option value="price_desc" <%= filters.sort==='price_desc' ? 'selected' : '' %>>Price: High → Low</option>
+              <option value="newest" <%= filters.sort==='newest' ? 'selected' : '' %>>Newest</option>
+            </select>
+          </div>
+
+          <!-- Buttons -->
+          <div class="col-4 col-md-1 d-flex justify-content-end">
+            <div class="top-search-actions w-100">
+              <button class="btn btn-primary w-100" type="submit">Search</button>
+            </div>
+          </div>
+
+          <!-- small-row for mobile: clear button -->
+          <div class="col-12 d-md-none mt-1">
+            <div class="d-flex gap-2">
+              <button id="clearTopMobile" type="button" class="btn btn-outline-secondary w-100">Clear</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Sidebar -->
+    <aside class="col-lg-3 d-none d-lg-block">
+      <div class="filter-side">
+        <h6>Filters</h6>
+
+        <form id="sidebarFilters" method="get" action="/packages">
+          <!-- Keep values synced between topSearch and sidebar -->
+          <input type="hidden" name="q" value="<%= filters.q || '' %>">
+
+          <div class="mb-3">
+            <label class="form-label small">Destination (city)</label>
+            <input name="dest" class="form-control" value="<%= filters.dest || '' %>" placeholder="e.g. Goa">
+          </div>
+
+          <!-- price slider (min + max) -->
+          <div class="mb-3">
+            <label class="form-label small">Price range (₹)</label>
+            <div class="range-wrap mb-2">
+              <input id="minPriceRange" class="range-input" type="range" min="0" max="<%= maxPrice %>" step="500" value="<%= filters.min_price || 0 %>">
+              <input id="maxPriceRange" class="range-input" type="range" min="0" max="<%= maxPrice %>" step="500" value="<%= filters.max_price || maxPrice %>">
+            </div>
+            <div class="d-flex gap-2">
+              <input id="minPriceInput" name="min_price" type="number" class="form-control form-control-sm" placeholder="Min" value="<%= filters.min_price || '' %>">
+              <input id="maxPriceInput" name="max_price" type="number" class="form-control form-control-sm" placeholder="Max" value="<%= filters.max_price || '' %>">
+              <div class="range-value">Max: ₹ <span id="maxPriceLabel"><%= filters.max_price || maxPrice %></span></div>
+            </div>
+            <div class="small-muted mt-1">Drag sliders or type values. Min must be ≤ Max.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Nights</label>
+            <select name="nights" class="form-select form-select-sm">
+              <option value="">Any</option>
+              <option value="1" <%= String(filters.nights) === '1' ? 'selected' : '' %>>1</option>
+              <option value="2" <%= String(filters.nights) === '2' ? 'selected' : '' %>>2</option>
+              <option value="3" <%= String(filters.nights) === '3' ? 'selected' : '' %>>3</option>
+              <option value="4" <%= String(filters.nights) === '4' ? 'selected' : '' %>>4</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Sort</label>
+            <select name="sort" class="form-select form-select-sm">
+              <option value="relevance" <%= filters.sort==='relevance' ? 'selected' : '' %>>Relevance</option>
+              <option value="price_asc" <%= filters.sort==='price_asc' ? 'selected' : '' %>>Price: Low → High</option>
+              <option value="price_desc" <%= filters.sort==='price_desc' ? 'selected' : '' %>>Price: High → Low</option>
+              <option value="newest" <%= filters.sort==='newest' ? 'selected' : '' %>>Newest</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary w-100">Apply Filters</button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Results -->
+    <main class="col-lg-9">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0"><%= total %> Packages found</h5>
+        <div class="small-muted">Showing <%= Math.min(((page-1)*perPage + 1), total || 0) %> - <%= Math.min(page*perPage, total || 0) %></div>
+      </div>
+
+      <% if (packages && packages.length) { %>
+        <div class="row g-3">
+          <% packages.forEach(pkg => { %>
+            <div class="col-md-6 col-lg-4">
+              <div class="pkg-card">
+                <img src="<%= pkg.image %>" class="pkg-img" alt="<%= pkg.title %>">
+                <div class="pkg-body">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="pkg-title">
+                        <a href="/packages/<%= pkg.id %>" class="text-decoration-none text-dark"><%= pkg.title %></a>
+                      </div>
+                      <div class="pkg-meta"><%= pkg.dest_city %> • <%= pkg.nights %> nights • <%= pkg.hotel_count %> hotels</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="h5 mb-0"><%= pkg.currency %> <%= (pkg.base_price || 0).toLocaleString() %></div>
+                      <div class="small-muted">per package</div>
+                    </div>
+                  </div>
+
+                  <p class="mt-2 small"><%= pkg.description %></p>
+
+                  <div class="d-flex gap-2 mt-2">
+                    <a class="btn btn-outline-primary btn-sm" href="/packages/<%= pkg.id %>">View details</a>
+                    <a class="btn btn-primary btn-sm" href="/booking/package/<%= pkg.id %>">Book</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
+        <!-- pagination -->
+        <nav class="mt-4">
+          <ul class="pagination justify-content-center">
+            <li class="page-item <%= page<=1 ? 'disabled':'' %>"><a class="page-link" href="<%= buildPageUrl(page-1) %>">Previous</a></li>
+
+            <% const pages = Math.max(1, Math.ceil(total / perPage)); %>
+            <% for (let p=1; p<=pages; p++) { %>
+              <li class="page-item <%= p===page ? 'active':'' %>">
+                <a class="page-link" href="<%= buildPageUrl(p) %>"><%= p %></a>
+              </li>
+            <% } %>
+
+            <li class="page-item <%= page>=pages ? 'disabled':'' %>"><a class="page-link" href="<%= buildPageUrl(page+1) %>">Next</a></li>
+          </ul>
+        </nav>
+
+      <% } else { %>
+        <div class="alert alert-warning">No packages match your filters.</div>
+      <% } %>
+    </main>
+  </div>
+</section>
+
+<script>
+  // Clear top form quickly (desktop button handled by top search card's Search button; Clear mobile button shown)
+  document.getElementById('clearTopMobile')?.addEventListener('click', function(){
+    const form = document.getElementById('topSearch');
+    if (!form) return;
+    form.querySelectorAll('input, select').forEach(i => {
+      if (i.name === 'page' || i.name === 'perPage') return;
+      if (i.type === 'checkbox' || i.type === 'radio') i.checked = false;
+      else i.value = '';
+    });
+    form.submit();
+  });
+
+  // Price sliders sync logic
+  (function(){
+    const minRange = document.getElementById('minPriceRange');
+    const maxRange = document.getElementById('maxPriceRange');
+    const minInput = document.getElementById('minPriceInput');
+    const maxInput = document.getElementById('maxPriceInput');
+    const maxLabel = document.getElementById('maxPriceLabel');
+
+    if (!minRange || !maxRange || !minInput || !maxInput) return;
+
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    function syncFromRanges(e){
+      let minV = Number(minRange.value);
+      let maxV = Number(maxRange.value);
+      if (minV > maxV) {
+        if (e && e.target === minRange) maxV = minV;
+        else minV = maxV;
+      }
+      minInput.value = minV;
+      maxInput.value = maxV;
+      maxLabel.textContent = maxV;
+    }
+
+    function syncFromInputs(){
+      let minV = Number(minInput.value) || 0;
+      let maxV = Number(maxInput.value) || 0;
+      const minAllowed = Number(minRange.min || 0);
+      const maxAllowed = Number(maxRange.max || 100000);
+      minV = clamp(minV, minAllowed, maxAllowed);
+      maxV = clamp(maxV, minAllowed, maxAllowed);
+      if (minV > maxV) minV = maxV;
+      minRange.value = minV;
+      maxRange.value = maxV;
+      maxLabel.textContent = maxV;
+    }
+
+    minRange.addEventListener('input', syncFromRanges);
+    maxRange.addEventListener('input', syncFromRanges);
+    minInput.addEventListener('change', syncFromInputs);
+    maxInput.addEventListener('change', syncFromInputs);
+
+    maxLabel.textContent = maxInput.value || maxRange.value;
+  })();
+</script>

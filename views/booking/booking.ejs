@@ -1,0 +1,192 @@
+<!-- views/bookings.ejs -->
+<style>
+  /* Page basics (consistent with site) */
+  .page-section { padding: 1.25rem 0; }
+  .card { background:#fff; border-radius:.8rem; box-shadow:0 6px 18px rgba(2,6,23,0.06); overflow:hidden; }
+  .muted { color:#6b7280; }
+  .meta-pill { display:inline-block; padding:.18rem .5rem; border-radius:.45rem; background:#f1f5f9; font-size:.82rem; color:#374151; }
+  .booking-card { display:flex; gap:1rem; padding:1rem; align-items:flex-start; border-bottom:1px solid #eef2f7; }
+  .booking-left { flex:1; min-width:0; }
+  .booking-right { width:220px; text-align:right; }
+  .booking-ref { font-weight:700; font-size:1rem; }
+  .small { font-size:.88rem; color:#6b7280; }
+  .status-badge { display:inline-block; padding:.28rem .55rem; border-radius:.45rem; font-weight:600; font-size:.82rem; }
+  .status-pending { background:#fff3cd; color:#7a5a00; border:1px solid #ffecb5; }
+  .status-confirmed { background:#e6ffed; color:#0b6623; border:1px solid #c3f5cf; }
+  .status-cancelled { background:#fff0f2; color:#7a1730; border:1px solid #ffd6e0; }
+  .status-checked_in { background:#eef6ff; color:#034ea2; border:1px solid #d9ecff; }
+  .price-strap { font-weight:700; color:#0b5cff; font-size:1.05rem; }
+  .actions .btn { min-width:100px; }
+  .filters { display:flex; gap:.75rem; align-items:center; margin-bottom:1rem; flex-wrap:wrap; }
+  .empty-state { text-align:center; padding:3rem; color:#6b7280; }
+
+  @media(max-width:768px) {
+    .booking-card { flex-direction:column; }
+    .booking-right { width:100%; text-align:left; display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+    .actions { display:flex; gap:.5rem; }
+  }
+
+  /* Dark theme overrides */
+  html[data-theme="dark"] .card { background:#071024; color:#e6eef8; box-shadow: 0 6px 18px rgba(0,0,0,0.6); }
+  html[data-theme="dark"] .meta-pill { background:#082036; color:#dbeeff; }
+  html[data-theme="dark"] .small { color:#c7d5e8; }
+  html[data-theme="dark"] .price-strap { color:#9fc9ff; }
+</style>
+
+<section class="container page-section">
+  <div class="card p-3">
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div>
+        <h3 class="mb-0">My Bookings</h3>
+        <div class="small muted">Manage your reservations — hotels and travel.</div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <form id="bookingFilter" method="get" action="/bookings" class="d-flex filters">
+          <input type="text" name="q" class="form-control form-control-sm" placeholder="Search reference, hotel, city..." value="<%= filters && filters.q ? filters.q : '' %>">
+          <select name="type" class="form-select form-select-sm">
+            <option value="">All</option>
+            <option value="hotel" <%= filters && filters.type === 'hotel' ? 'selected' : '' %>>Hotels</option>
+            <option value="transport" <%= filters && filters.type === 'transport' ? 'selected' : '' %>>Transport</option>
+          </select>
+          <select name="status" class="form-select form-select-sm">
+            <option value="">Any status</option>
+            <option value="pending" <%= filters && filters.status === 'pending' ? 'selected' : '' %>>Pending</option>
+            <option value="confirmed" <%= filters && filters.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+            <option value="cancelled" <%= filters && filters.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+          </select>
+          <button class="btn btn-outline-primary btn-sm" type="submit">Apply</button>
+        </form>
+      </div>
+    </div>
+
+    <% if (!currentUser) { %>
+      <div class="empty-state">
+        <p class="mb-3">You must be signed in to view bookings.</p>
+        <a href="/auth/login?redirect=/bookings" class="btn btn-primary">Login or Signup</a>
+      </div>
+    <% } else if (!bookings || bookings.length === 0) { %>
+      <div class="empty-state">
+        <h4 class="mb-2">No bookings yet</h4>
+        <p class="mb-3 muted">Looks like you haven't made any bookings. Start searching for hotels or travel and you'll see them here.</p>
+        <a href="/stays/hotels" class="btn btn-outline-primary">Search hotels</a>
+      </div>
+    <% } else { %>
+
+      <!-- Bookings list -->
+      <div>
+        <% bookings.forEach(b => { %>
+          <div class="booking-card">
+            <div class="booking-left">
+              <div class="d-flex align-items-start justify-content-between">
+                <div style="min-width:0;">
+                  <div class="booking-ref"><%= b.booking_ref || b.id %> 
+                    <span class="small muted" style="margin-left:.5rem">• <%= b.type ? b.type.toUpperCase() : '' %></span>
+                  </div>
+                  <div class="small muted" style="margin-top:.25rem;"><%= b.title || b.subtitle || '' %></div>
+                </div>
+                <div class="d-none d-md-block" style="text-align:right; min-width:160px;">
+                  <div class="small muted">Booked on</div>
+                  <div style="font-weight:600;"><%= b.created_at ? (new Date(b.created_at)).toLocaleString() : '' %></div>
+                </div>
+              </div>
+
+              <% if (b.items && b.items.length) { %>
+                <div style="margin-top:.6rem;">
+                  <% b.items.slice(0,3).forEach(it => { %>
+                    <div class="meta-pill" style="margin-right:.35rem; margin-bottom:.35rem; display:inline-block;">
+                      <%= it.label || it.description || (it.name ? it.name : '') %>
+                    </div>
+                  <% }) %>
+                  <% if (b.items.length > 3) { %>
+                    <span class="small muted">+ <%= b.items.length - 3 %> more</span>
+                  <% } %>
+                </div>
+              <% } %>
+
+            </div>
+
+            <div class="booking-right">
+              <div class="mb-2">
+                <div class="price-strap">₹ <%= (typeof b.total_amount === 'number') ? b.total_amount.toLocaleString('en-IN') : (b.total_amount || 0) %></div>
+                <div class="small muted">Total</div>
+              </div>
+
+              <div style="margin-bottom:.5rem;">
+                <!-- status badge -->
+                <% let st = (b.status || '').toString().toLowerCase(); %>
+                <% if (st === 'pending') { %>
+                  <span class="status-badge status-pending">Pending</span>
+                <% } else if (st === 'confirmed' || st === 'paid') { %>
+                  <span class="status-badge status-confirmed">Confirmed</span>
+                <% } else if (st === 'cancelled') { %>
+                  <span class="status-badge status-cancelled">Cancelled</span>
+                <% } else if (st === 'checked_in' || st === 'checked_in') { %>
+                  <span class="status-badge status-checked_in">Checked in</span>
+                <% } else { %>
+                  <span class="status-badge meta-pill"><%= b.status || '—' %></span>
+                <% } %>
+              </div>
+
+              <div class="actions d-flex flex-column gap-2">
+                <a class="btn btn-outline-primary btn-sm" href="/booking/<%= b.id %>">View</a>
+
+                <% if (b.payment_status && b.payment_status.toString().toLowerCase() === 'unpaid') { %>
+                  <form method="post" action="/payments/pay" class="m-0">
+                    <input type="hidden" name="booking_id" value="<%= b.id %>">
+                    <button type="submit" class="btn btn-primary btn-sm">Pay now</button>
+                  </form>
+                <% } %>
+
+                <% // allow cancel if status allows (simple check) %>
+                <% if (st === 'pending' || st === 'confirmed') { %>
+                  <form method="post" action="/booking/<%= b.id %>/cancel" onsubmit="return confirmCancel(this);" class="m-0">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Cancel</button>
+                  </form>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+
+      <!-- Pagination (if provided) -->
+      <% if (typeof total !== 'undefined' && typeof page !== 'undefined' && typeof perPage !== 'undefined') { %>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div class="small muted">Showing <%= Math.min((page-1)*perPage+1, total) %> - <%= Math.min(page*perPage, total) %> of <%= total %></div>
+          <div>
+            <% const totalPages = Math.ceil(total / perPage) || 1; %>
+            <nav aria-label="Bookings pagination">
+              <ul class="pagination pagination-sm mb-0">
+                <% for (let p = 1; p <= totalPages; p++) { %>
+                  <li class="page-item <%= p === page ? 'active' : '' %>">
+                    <a class="page-link" href="<%= paginateUrl ? paginateUrl(p) : ('/bookings?page=' + p) %>"><%= p %></a>
+                  </li>
+                <% } %>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      <% } %>
+
+    <% } %>
+
+  </div>
+</section>
+
+<script>
+  // Confirm cancel action
+  function confirmCancel(form) {
+    if (!confirm('Are you sure you want to cancel this booking? This action may be subject to the cancellation policy.')) {
+      return false;
+    }
+    // Optionally disable button to avoid double submit
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+    return true;
+  }
+
+  // If user clicks Bookings while not logged in, they are redirected by server
+  // This page includes Pay / Cancel forms — they must be handled by server-side routes
+</script>

@@ -1,0 +1,561 @@
+<%
+  const vt = vendorType || (vendor && vendor.vendor_type) || 'hotel';
+  const isHotelVendor = vt === 'hotel';
+  const isTravelVendor = vt === 'travel';
+  const vp = vendorProfile || {};
+  const fullName = (vp.first_name || '') + (vp.last_name ? (' ' + vp.last_name) : '');
+
+  // safety defaults so template never crashes
+  const safeHotels          = Array.isArray(hotels) ? hotels : [];
+  const safeTravelProviders = Array.isArray(travelProviders) ? travelProviders : [];
+  const safeVendorBookings  = Array.isArray(vendorBookings) ? vendorBookings : [];
+  const safeTravelBookings  = Array.isArray(travelBookings) ? travelBookings : [];
+  const safePayouts         = Array.isArray(payouts) ? payouts : [];
+  const safeTravelPayouts   = Array.isArray(travelPayouts) ? travelPayouts : [];
+  const safeProviderRoutes  = Array.isArray(providerRoutes) ? providerRoutes : [];
+
+  // map of hotel_id -> [rooms...]
+  const roomsByHotel =
+    (typeof hotelRoomsById !== 'undefined' && hotelRoomsById && typeof hotelRoomsById === 'object')
+      ? hotelRoomsById
+      : {};
+%>
+
+<style>
+  .vendor-page {
+    padding: 2.5rem 1rem 5.5rem;  /* extra bottom padding so footer never touches */
+    background: #f3f4f6;
+    min-height: 100vh;            /* let page grow naturally */
+  }
+
+  .vendor-header-card {
+    background: linear-gradient(120deg, #1d4ed8, #0ea5e9);
+    border-radius: 1rem;
+    padding: 1.5rem 1.75rem;
+    color: #eff6ff;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+  }
+
+  .vendor-header-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .vendor-header-subtitle {
+    font-size: 0.95rem;
+    color: #dbeafe;
+  }
+
+  .vendor-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: rgba(15, 23, 42, 0.25);
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+  }
+
+  .vendor-card {
+    background: #ffffff;
+    border-radius: 0.9rem;
+    border: 1px solid #e5e7eb;
+    padding: 1.25rem 1.3rem;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  }
+
+  .vendor-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .vendor-card-sub {
+    font-size: 0.83rem;
+    color: #6b7280;
+  }
+
+  .metric-badge {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6b7280;
+  }
+
+  .metric-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .vendor-table {
+    font-size: 0.86rem;
+  }
+
+  .vendor-table thead {
+    background: #f9fafb;
+  }
+
+  .vendor-table th {
+    font-weight: 600;
+    color: #4b5563;
+    border-bottom-width: 1px;
+  }
+
+  .vendor-table td {
+    vertical-align: middle;
+  }
+
+  .badge-status {
+    font-size: 0.75rem;
+    padding: 0.12rem 0.55rem;
+    border-radius: 999px;
+  }
+
+  .badge-status.active      { background:#dcfce7; color:#166534; }
+  .badge-status.inactive    { background:#fee2e2; color:#b91c1c; }
+  .badge-status.closed      { background:#e5e7eb; color:#4b5563; }
+  .badge-status.pending     { background:#fef3c7; color:#92400e; }
+  .badge-status.confirmed   { background:#e0f2fe; color:#075985; }
+  .badge-status.cancelled   { background:#fee2e2; color:#b91c1c; }
+
+  .text-muted-xs { font-size:0.78rem; color:#6b7280; }
+
+  /* scroll inside tables rather than pushing into footer */
+  .vendor-card .table-responsive {
+    max-height: 260px;
+    overflow-y: auto;
+    overflow-x: auto;
+  }
+
+  /* inner room list styling */
+  .room-list-wrapper {
+    background: #f9fafb;
+    border-radius: 0.6rem;
+    padding: 0.6rem 0.75rem;
+    margin-top: 0.4rem;
+  }
+
+  .room-list-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 0.3rem;
+  }
+
+  .room-mini-table {
+    font-size: 0.8rem;
+    margin-bottom: 0;
+  }
+
+  .room-mini-table th {
+    font-weight: 600;
+    color: #4b5563;
+  }
+
+  .room-mini-table td {
+    vertical-align: middle;
+  }
+
+  .btn-room-toggle {
+    font-size: 0.76rem;
+    padding: .15rem .55rem;
+  }
+
+  @media (max-width: 991px) {
+    .vendor-page {
+      padding-top: 1.5rem;
+      padding-bottom: 5.5rem;
+    }
+  }
+</style>
+
+<section class="vendor-page">
+  <div class="container">
+
+    <!-- HEADER / HERO -->
+    <div class="vendor-header-card mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+          <div class="vendor-pill mb-2">
+            <span>VendorHub</span>
+            <span>•</span>
+            <% if (isHotelVendor) { %>
+              <span>Hotel Partner</span>
+            <% } else if (isTravelVendor) { %>
+              <span>Travel Partner</span>
+            <% } else { %>
+              <span>Vendor</span>
+            <% } %>
+          </div>
+
+          <div class="vendor-header-title mb-1">
+            Hello, <%= fullName || (vendor && vendor.email) || 'Partner' %>
+          </div>
+          <div class="vendor-header-subtitle">
+            <% if (isHotelVendor) { %>
+              Manage your properties, rooms, and hotel bookings from one simple dashboard.
+            <% } else if (isTravelVendor) { %>
+              Manage your routes, seats, and travel bookings from one simple dashboard.
+            <% } else { %>
+              View and manage your vendor activity with EverJourney.
+            <% } %>
+          </div>
+        </div>
+
+        <div class="text-end">
+          <div class="text-muted-xs mb-1">Signed in as</div>
+          <div style="font-size:0.9rem;"><%= vendor && vendor.email ? vendor.email : '' %></div>
+          <% if (vp.phone) { %>
+            <div class="text-muted-xs mt-1">Phone: <%= vp.phone %></div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- METRIC CARDS -->
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <div class="vendor-card">
+          <div class="metric-badge mb-1">Total bookings</div>
+          <div class="metric-value mb-1">
+            <%= (vendorStats && vendorStats.total_bookings) ? vendorStats.total_bookings : 0 %>
+          </div>
+          <div class="text-muted-xs">Overall confirmed bookings linked to your account.</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="vendor-card">
+          <div class="metric-badge mb-1">Total revenue</div>
+          <div class="metric-value mb-1">
+            ₹ <%= (vendorStats && vendorStats.total_revenue) ? vendorStats.total_revenue : 0 %>
+          </div>
+          <div class="text-muted-xs">Total paid booking amount (before fees/taxes).</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="vendor-card">
+          <div class="metric-badge mb-1">
+            <% if (isHotelVendor) { %> Properties <% } else { %> Providers <% } %>
+          </div>
+          <div class="metric-value mb-1">
+            <% if (isHotelVendor) { %>
+              <%= safeHotels.length %>
+            <% } else { %>
+              <%= safeTravelProviders.length %>
+            <% } %>
+          </div>
+          <div class="text-muted-xs">
+            <% if (isHotelVendor) { %>
+              Active hotels / stays linked to this vendor.
+            <% } else { %>
+              Travel / cab provider profiles linked to this vendor.
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+
+      <!-- LEFT COLUMN -->
+      <div class="col-lg-7">
+        <% if (isHotelVendor) { %>
+          <div class="vendor-card mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <div class="vendor-card-title">Your hotels & stays</div>
+                <div class="vendor-card-sub">Properties managed under your vendor account.</div>
+              </div>
+              <!-- ENABLED add hotel button -->
+              <a href="/vendor/hotels/new" class="btn btn-sm btn-outline-primary">
+                + Add hotel
+              </a>
+            </div>
+
+            <% if (safeHotels.length) { %>
+              <div class="table-responsive">
+                <table class="table table-sm vendor-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Hotel</th>
+                      <th>City</th>
+                      <th>Rating</th>
+                      <th>Rooms</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% safeHotels.forEach(h => { 
+                         const hotelRooms = roomsByHotel[h.id] || [];
+                    %>
+                      <!-- MAIN HOTEL ROW -->
+                      <tr>
+                        <td>
+                          <strong><%= h.name %></strong><br>
+                          <span class="text-muted-xs">ID: <%= h.id %></span>
+                        </td>
+                        <td><%= h.city || '-' %></td>
+                        <td><%= h.star_rating || '-' %></td>
+                        <td>
+                          <%= h.room_count || hotelRooms.length || 0 %>
+                        </td>
+                        <td>
+                          <span class="badge-status <%= (h.status || 'active').toLowerCase() %>">
+                            <%= (h.status || 'active').replace('_',' ') %>
+                          </span>
+                        </td>
+                        <td>
+                          <!-- Add rooms button -->
+                          <a href="/vendor/hotels/<%= h.id %>/rooms/new"
+                             class="btn btn-sm btn-outline-secondary btn-room-toggle mb-1">
+                            + Add rooms
+                          </a>
+                          <!-- Toggle room list (only if we have rooms for this hotel) -->
+                          <% if (hotelRooms.length) { %>
+                            <button class="btn btn-sm btn-outline-primary btn-room-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#roomsFor_<%= h.id %>"
+                                    aria-expanded="false"
+                                    aria-controls="roomsFor_<%= h.id %>">
+                              View rooms
+                            </button>
+                          <% } %>
+                        </td>
+                      </tr>
+
+                      <!-- ROOM LIST ROW (COLLAPSIBLE) -->
+                      <% if (hotelRooms.length) { %>
+                        <tr class="collapse" id="roomsFor_<%= h.id %>">
+                          <td colspan="6">
+                            <div class="room-list-wrapper">
+                              <div class="room-list-title">
+                                Rooms for <%= h.name %>
+                              </div>
+                              <div class="table-responsive">
+                                <table class="table table-sm room-mini-table">
+                                  <thead>
+                                    <tr>
+                                      <th>Room #</th>
+                                      <th>Room type</th>
+                                      <th>Floor</th>
+                                      <th>Status</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <% hotelRooms.forEach(r => { %>
+                                      <tr>
+                                        <td><%= r.room_number %></td>
+                                        <td><%= r.room_type_name || '-' %></td>
+                                        <td><%= (typeof r.floor !== 'undefined' && r.floor !== null) ? r.floor : '—' %></td>
+                                        <td>
+                                          <span class="badge-status <%= (r.status || 'available').toLowerCase() %>">
+                                            <%= (r.status || 'available').replace('_',' ') %>
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    <% }); %>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      <% } %>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            <% } else { %>
+              <p class="mb-0 text-muted-xs">
+                No hotels linked yet. Click “Add hotel” to create your first property.
+              </p>
+            <% } %>
+          </div>
+        <% } %>
+
+        <% if (isTravelVendor) { %>
+          <div class="vendor-card mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <div class="vendor-card-title">Your travel providers</div>
+                <div class="vendor-card-sub">Agencies / operators linked to your vendor account.</div>
+              </div>
+              <a href="#" class="btn btn-sm btn-outline-primary" disabled>+ Add provider (coming soon)</a>
+            </div>
+
+            <% if (safeTravelProviders.length) { %>
+              <div class="table-responsive">
+                <table class="table table-sm vendor-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Provider</th>
+                      <th>Type</th>
+                      <th>Code</th>
+                      <th>Vehicle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% safeTravelProviders.forEach(p => { %>
+                      <tr>
+                        <td>
+                          <strong><%= p.name %></strong><br>
+                          <span class="text-muted-xs">Reg: <%= p.registration_number || '—' %></span>
+                        </td>
+                        <td><%= p.provider_type || '-' %></td>
+                        <td><%= p.code || '—' %></td>
+                        <td><%= p.vehicle_type || '—' %></td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            <% } else { %>
+              <p class="mb-0 text-muted-xs">
+                No travel providers linked yet. Once your profile is verified, they’ll appear here.
+              </p>
+            <% } %>
+          </div>
+
+          <div class="vendor-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <div class="vendor-card-title">Key routes</div>
+                <div class="vendor-card-sub">Upcoming or frequently used routes for your services.</div>
+              </div>
+            </div>
+
+            <% if (safeProviderRoutes.length) { %>
+              <div class="table-responsive">
+                <table class="table table-sm vendor-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Route</th>
+                      <th>Departure</th>
+                      <th>Arrival</th>
+                      <th>Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% safeProviderRoutes.forEach(r => { %>
+                      <tr>
+                        <td><%= r.route_label || '-' %></td>
+                        <td><%= r.departure_datetime || '-' %></td>
+                        <td><%= r.arrival_datetime || '-' %></td>
+                        <td><%= r.transport_type || '-' %></td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            <% } else { %>
+              <p class="mb-0 text-muted-xs">No routes found yet. Once you add routes, they’ll appear here.</p>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- RIGHT COLUMN: BOOKINGS + PAYOUTS -->
+      <div class="col-lg-5">
+        <div class="vendor-card mb-3">
+          <div class="vendor-card-title mb-1">Recent bookings</div>
+          <div class="vendor-card-sub mb-2">
+            Latest <%= isHotelVendor ? 'hotel' : 'travel' %> bookings linked to your properties/services.
+          </div>
+
+          <%
+            const bookingsList = isHotelVendor ? safeVendorBookings : safeTravelBookings;
+          %>
+
+          <% if (bookingsList.length) { %>
+            <div class="table-responsive">
+              <table class="table table-sm vendor-table mb-0">
+                <thead>
+                  <tr>
+                    <th>Ref</th>
+                    <th>Guest / User</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% bookingsList.forEach(b => { %>
+                    <tr>
+                      <td>
+                        <strong><%= b.booking_ref %></strong><br>
+                        <span class="text-muted-xs"><%= b.created_at %></span>
+                      </td>
+                      <td>
+                        <span class="text-muted-xs"><%= b.guest_name || b.user_email || 'Guest' %></span>
+                      </td>
+                      <td>
+                        <span class="badge-status <%= (b.status || 'pending').toLowerCase() %>">
+                          <%= (b.status || 'pending').replace('_',' ') %>
+                        </span>
+                      </td>
+                      <td>
+                        ₹ <%= b.total_amount || 0 %>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <p class="mb-2 text-muted-xs">
+              No bookings found yet. New bookings will appear here as soon as they are made.
+            </p>
+          <% } %>
+        </div>
+
+        <div class="vendor-card">
+          <div class="vendor-card-title mb-1">Recent payouts / payments</div>
+          <div class="vendor-card-sub mb-2">Latest payment records associated with your bookings.</div>
+
+          <%
+            const payoutList = isHotelVendor ? safePayouts : safeTravelPayouts;
+          %>
+
+          <% if (payoutList.length) { %>
+            <div class="table-responsive">
+              <table class="table table-sm vendor-table mb-0">
+                <thead>
+                  <tr>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% payoutList.forEach(p => { %>
+                    <tr>
+                      <td>
+                        <strong><%= p.id %></strong><br>
+                        <span class="text-muted-xs"><%= p.paid_at || p.created_at || '' %></span>
+                      </td>
+                      <td>
+                        <span class="badge-status <%= (p.status || 'success').toLowerCase() %>">
+                          <%= (p.status || 'success') %>
+                        </span>
+                      </td>
+                      <td>₹ <%= p.amount || 0 %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <p class="mb-0 text-muted-xs">No payment records yet.</p>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

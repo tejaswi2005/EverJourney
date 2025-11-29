@@ -1,0 +1,169 @@
+<!-- views/auth/vendor/index.ejs -->
+
+<style>
+  .vendor-auth-page {
+    min-height: calc(95vh - 72px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem 3rem;
+    /* Background image */
+  background-image: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80");
+  background-size: cover;          /* cover full area */
+  background-position: center;     /* center focus */
+  background-repeat: no-repeat;
+  }
+
+  .vendor-auth-wrapper {
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  .vendor-heading {
+    color: #03080e;;
+    font-weight: 700;
+  }
+
+  .vendor-subtitle {
+    color: #091a2e;
+    font-size: 0.95rem;
+  }
+
+  .vendor-card {
+    background: #ffffff;
+    border-radius: 1.1rem;
+    border: 1px solid #e4e6ea;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+    padding: 1.6rem 1.9rem;
+    min-height: 300px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .vendor-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
+  }
+
+  .vendor-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #2563eb;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+  }
+
+  .vendor-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    color: #111827;
+  }
+
+  .vendor-desc {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 0.9rem;
+  }
+
+  .vendor-card ul {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 1.1rem;
+    padding-left: 1.1rem;
+  }
+
+  .vendor-card li + li {
+    margin-top: 0.25rem;
+  }
+
+  .vendor-btn {
+    font-size: 0.82rem;
+    padding: 0.45rem 1.1rem;
+    border-radius: 999px;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .vendor-btn:hover {
+    opacity: 0.9;
+  }
+
+  @media (max-width: 767px) {
+    .vendor-card {
+      margin-bottom: 1rem;
+    }
+  }
+</style>
+
+<section class="vendor-auth-page">
+  <div class="vendor-auth-wrapper w-100">
+    
+    <!-- Heading -->
+    <div class="text-center mb-4">
+      <h2 class="vendor-heading">Join EverJourney as a Partner</h2>
+      <p class="vendor-subtitle">
+        Choose what you want to manage: hotel stays or travel & cab services.
+      </p>
+    </div>
+
+    <div class="row g-3">
+
+      <!-- HOTEL VENDOR CARD -->
+      <div class="col-md-6">
+        <div class="vendor-card">
+          <div class="mb-2">
+            <div class="vendor-tag">Hotel vendor</div>
+            <div class="vendor-title">I manage hotels or stays</div>
+            <p class="vendor-desc">
+              For property owners, hotel managers and homestay hosts.
+            </p>
+          </div>
+
+          <ul>
+            <li>List your hotel, resort or homestay</li>
+            <li>Manage room types, amenities and rates</li>
+            <li>Track bookings & revenue easily</li>
+          </ul>
+
+          <div class="d-flex flex-wrap gap-2">
+            <a href="/vendor/hotel/login" class="btn btn-primary vendor-btn">
+              Hotel Vendor Login
+            </a>
+            <a href="/vendor/hotel/signup" class="btn btn-outline-primary vendor-btn">
+              Register Hotel Vendor
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAVEL / CAB VENDOR CARD -->
+      <div class="col-md-6">
+        <div class="vendor-card">
+          <div class="mb-2">
+            <div class="vendor-tag">Travel / cab vendor</div>
+            <div class="vendor-title">I manage travel or cab services</div>
+            <p class="vendor-desc">
+              For cab operators, bus companies and travel agencies.
+            </p>
+          </div>
+
+          <ul>
+            <li>Add routes, timings and seat details</li>
+            <li>Manage bookings across all services</li>
+            <li>Increase visibility to thousands of users</li>
+          </ul>
+
+          <div class="d-flex flex-wrap gap-2">
+            <a href="/vendor/travel/login" class="btn btn-primary vendor-btn">
+              Travel Vendor Login
+            </a>
+            <a href="/vendor/travel/signup" class="btn btn-outline-primary vendor-btn">
+              Register Travel Vendor
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

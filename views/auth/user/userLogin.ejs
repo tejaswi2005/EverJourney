@@ -1,0 +1,101 @@
+<!-- views/auth/login.ejs -->
+<style>
+  .auth-page { min-height:70vh; display:flex; align-items:center; justify-content:center; padding:3rem 1rem; }
+  .auth-card { width:100%; max-width:920px; display:grid; grid-template-columns:1fr 420px; gap:1.5rem; }
+  .auth-visual { background: linear-gradient(180deg,#eef2ff 0%, #ffffff 100%); border-radius:.8rem; padding:2rem; box-shadow:0 10px 30px rgba(2,6,23,0.06); }
+  .auth-form { background:#fff; padding:2rem; border-radius:.8rem; box-shadow:0 6px 18px rgba(2,6,23,0.06); }
+  .brand { font-weight:700; color:#0b5cff; font-size:1.6rem; }
+  .muted { color:#6b7280; }
+  .form-control { height:46px; border-radius:.6rem; }
+  .btn-primary { border-radius:.6rem; padding:.6rem 1rem; }
+  .small-note { font-size:.85rem; color:#6b7280; }
+  .hr { height:1px; background:#eef2f7; margin:1rem 0; border-radius:2px; }
+  .error { background:#fff3f2; border:1px solid #ffd3cf; color:#9b1c1c; padding:.6rem; border-radius:.5rem; margin-bottom:.8rem; }
+  @media(max-width:900px) { .auth-card { grid-template-columns: 1fr; } }
+</style>
+
+<section class="container auth-page">
+  <div class="auth-card">
+
+    <div class="auth-visual">
+      <div class="brand">EverJourney</div>
+      <h3 style="margin-top:1rem">Welcome back</h3>
+      <p class="muted">Sign in to manage your bookings, view invoices and write reviews.</p>
+
+      <div style="margin-top:1.6rem;">
+        <img src="/assets/login-illustration.svg" alt="travel" style="width:100%; max-width:360px;">
+      </div>
+
+      <div class="hr"></div>
+      <p class="small-note">Don't have an account? <a href="/auth/signup">Create one — it's free</a></p>
+    </div>
+
+    <div class="auth-form">
+      <h4 class="mb-3">Sign in to your account</h4>
+
+      <% if (typeof errors === 'string' && errors.length) { %>
+        <div class="error"><%= errors %></div>
+      <% } else if (Array.isArray(errors) && errors.length) { %>
+        <% errors.forEach(e => { %><div class="error"><%= e %></div><% }) %>
+      <% } %>
+
+      <form id="loginForm" method="post" action="/auth/login" novalidate>
+        <!-- preserve redirect param if present -->
+        <input type="hidden" name="redirect" value="<%= (old && old.redirect) ? old.redirect : (req && req.query && req.query.redirect) ? req.query.redirect : '' %>">
+
+        <div class="mb-3">
+          <label class="form-label small">Email</label>
+          <input class="form-control" type="email" name="email" required value="<%= old && old.email ? old.email : '' %>" placeholder="you@domain.com">
+        </div>
+
+        <div class="mb-3 position-relative">
+          <label class="form-label small">Password</label>
+          <div style="display:flex; gap:.5rem;">
+            <input id="loginPassword" class="form-control" type="password" name="password" required placeholder="Enter password">
+            <button id="toggleLoginPwd" type="button" class="btn btn-outline-secondary" style="border-radius:.6rem;">Show</button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <label class="form-check">
+              <input class="form-check-input" type="checkbox" name="remember" <%= old && old.remember ? 'checked' : '' %> />
+              <span class="form-check-label small"> Remember me</span>
+            </label>
+          </div>
+          <div><a href="/auth/forgot">Forgot?</a></div>
+        </div>
+
+        <div class="mb-3">
+          <button type="submit" class="btn btn-primary w-100">Sign in</button>
+        </div>
+
+        <div class="text-center small-note">or sign in with</div>
+
+        <div class="d-flex gap-2 mt-2">
+          <a href="/auth/oauth/google" class="btn btn-outline-secondary w-100">Google</a>
+          <a href="/auth/oauth/facebook" class="btn btn-outline-secondary w-100">Facebook</a>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  (function(){
+    const form = document.getElementById('loginForm');
+    form?.addEventListener('submit', function(){
+      const btn = this.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
+    });
+
+    const toggle = document.getElementById('toggleLoginPwd');
+    const pwd = document.getElementById('loginPassword');
+    toggle?.addEventListener('click', function(){
+      if (pwd.type === 'password') { pwd.type = 'text'; toggle.textContent = 'Hide'; }
+      else { pwd.type = 'password'; toggle.textContent = 'Show'; }
+    });
+  })();
+</script>

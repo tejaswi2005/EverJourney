@@ -1,0 +1,398 @@
+<% const o = old || {}; %>
+
+<style>
+  .vendor-add-page {
+    padding: 2.5rem 1rem 3.5rem;
+    background: #f3f4f6;
+    min-height: calc(100vh - 72px);
+  }
+
+  .vendor-add-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .vendor-add-card {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 1.5rem;
+  }
+
+  .vendor-add-left {
+    background: linear-gradient(140deg, #1d4ed8, #0ea5e9);
+    border-radius: 1rem;
+    padding: 1.6rem 1.8rem;
+    color: #eff6ff;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+  }
+
+  .vendor-add-left-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: .25rem;
+  }
+
+  .vendor-add-left-sub {
+    font-size: .9rem;
+    color: #dbeafe;
+  }
+
+  .vendor-add-left-list {
+    font-size: .85rem;
+    margin-top: 1rem;
+    padding-left: 1.1rem;
+  }
+
+  .vendor-add-form-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    padding: 1.6rem 1.7rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .vendor-section-label {
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: .25rem;
+  }
+
+  .vendor-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: .3rem;
+  }
+
+  .vendor-muted {
+    font-size: .85rem;
+    color: #6b7280;
+  }
+
+  .form-control,
+  .form-select {
+    height: 44px;
+    border-radius: .6rem;
+    font-size: .9rem;
+  }
+
+  textarea.form-control {
+    min-height: 80px;
+    height: auto;
+  }
+
+  .btn-primary {
+    border-radius: .6rem;
+    padding: .6rem 1rem;
+  }
+
+  .vendor-error {
+    background:#fff3f2;
+    border:1px solid #ffd3cf;
+    color:#9b1c1c;
+    padding:.6rem;
+    border-radius:.5rem;
+    margin-bottom:.5rem;
+    font-size:.85rem;
+  }
+
+  @media(max-width: 992px) {
+    .vendor-add-card {
+      grid-template-columns: 1fr;
+    }
+    .vendor-add-form-card {
+      max-height: none;
+    }
+  }
+</style>
+
+<section class="vendor-add-page">
+  <div class="container vendor-add-wrapper">
+
+    <div class="mb-3">
+      <a href="/profile" class="text-decoration-none" style="font-size:.85rem;">
+        ← Back to VendorHub
+      </a>
+    </div>
+
+    <div class="vendor-add-card">
+      <!-- LEFT INFO PANEL -->
+      <div class="vendor-add-left">
+        <div class="vendor-add-left-title">Add a new hotel / stay</div>
+        <p class="vendor-add-left-sub mb-2">
+          Create a property under your vendor account, then configure rooms & pricing.
+        </p>
+
+        <div style="margin-top:.8rem;">
+          <div style="font-size:.8rem; text-transform:uppercase; letter-spacing:.08em; opacity:.95;">
+            How it works
+          </div>
+          <ul class="vendor-add-left-list">
+            <li>Fill basic property details and contact info.</li>
+            <li>Add the primary room type with base price.</li>
+            <li>Optionally auto-generate a number of rooms.</li>
+            <li>Upload images for hotel and rooms.</li>
+            <li>Later you can add more room types & images.</li>
+          </ul>
+        </div>
+
+        <div style="margin-top:1.1rem;">
+          <div style="font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;">Tip</div>
+          <p style="font-size:.82rem; margin-top:.25rem;">
+            Use your official business email and phone number so our team can verify and approve your listing faster.
+          </p>
+        </div>
+      </div>
+
+      <!-- RIGHT FORM PANEL -->
+      <div class="vendor-add-form-card">
+        <h4 class="mb-1">New hotel / stay</h4>
+        <p class="vendor-muted mb-3">
+          This property will be linked to your vendor account and appear in hotel search once verified.
+        </p>
+
+        <% if (Array.isArray(errors) && errors.length) { %>
+          <% errors.forEach(e => { %>
+            <div class="vendor-error"><%= e %></div>
+          <% }) %>
+        <% } %>
+
+        <!-- IMPORTANT: enctype to allow file uploads -->
+        <form
+          id="addHotelForm"
+          method="post"
+          action="/vendor/hotels"
+          enctype="multipart/form-data"
+          novalidate
+        >
+          <!-- HOTEL BASIC DETAILS -->
+          <div class="vendor-section-label">Property</div>
+          <div class="vendor-section-title">Hotel details</div>
+          <p class="vendor-muted mb-2">Tell us about the stay you want to list.</p>
+
+          <div class="mb-3">
+            <label class="form-label small">Hotel / property name</label>
+            <input type="text" name="name" class="form-control"
+                   value="<%= o.name || '' %>" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Short description</label>
+            <textarea name="description" class="form-control" placeholder="Describe your property, location & key highlights."><%= o.description || '' %></textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-8 mb-3">
+              <label class="form-label small">Address line 1</label>
+              <input type="text" name="address_line1" class="form-control"
+                     value="<%= o.address_line1 || '' %>" required>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">Address line 2 (optional)</label>
+              <input type="text" name="address_line2" class="form-control"
+                     value="<%= o.address_line2 || '' %>">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label small">City</label>
+              <select name="city_id" class="form-select" required>
+                <option value="">Select city</option>
+                <% if (cities && cities.length) { %>
+                  <% cities.forEach(c => { %>
+                    <option value="<%= c.id %>" <%= String(o.city_id) === String(c.id) ? 'selected' : '' %>>
+                      <%= c.name %> <%= c.state ? ('(' + c.state + ')') : '' %>
+                    </option>
+                  <% }) %>
+                <% } %>
+              </select>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label small">Property type</label>
+              <select name="property_type" class="form-select">
+                <option value="">Select</option>
+                <option value="hotel"    <%= o.property_type === 'hotel' ? 'selected' : '' %>>Hotel</option>
+                <option value="resort"   <%= o.property_type === 'resort' ? 'selected' : '' %>>Resort</option>
+                <option value="homestay" <%= o.property_type === 'homestay' ? 'selected' : '' %>>Homestay</option>
+                <option value="lodge"    <%= o.property_type === 'lodge' ? 'selected' : '' %>>Lodge</option>
+              </select>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label small">Star rating</label>
+              <select name="star_rating" class="form-select">
+                <option value="">N/A</option>
+                <% for (let i=1;i<=5;i++) { %>
+                  <option value="<%= i %>" <%= String(o.star_rating) === String(i) ? 'selected' : '' %>>
+                    <%= i %> ★
+                  </option>
+                <% } %>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label small">Primary phone</label>
+              <input type="text" name="phone" class="form-control"
+                     value="<%= o.phone || '' %>" placeholder="+91 98765 43210">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label small">Property email</label>
+              <input type="email" name="hotel_email" class="form-control"
+                     value="<%= o.hotel_email || o.contact_email || '' %>"
+                     placeholder="frontdesk@hotel.com">
+            </div>
+          </div>
+
+          <!-- HOTEL IMAGES -->
+          <div class="vendor-section-label mt-3">Hotel images</div>
+          <p class="vendor-muted mb-2">
+            Upload a few photos of your property (exterior, lobby, common areas, etc.). JPG/PNG recommended.
+          </p>
+
+          <div class="mb-3">
+            <label class="form-label small">Hotel photos (max 6)</label>
+            <input
+              type="file"
+              name="hotel_images"
+              class="form-control"
+              accept="image/*"
+              multiple
+            >
+            <div class="vendor-muted" style="font-size:.78rem; margin-top:.25rem;">
+              The first image will be treated as the primary image on hotel details.
+            </div>
+          </div>
+
+          <!-- OPTIONAL AMENITIES -->
+          <div class="vendor-section-label mt-3">Amenities (optional)</div>
+          <p class="vendor-muted mb-2">
+            Select a few core amenities; you can refine later.
+          </p>
+
+          <% if (amenities && amenities.length) { %>
+            <div class="row">
+              <% amenities.forEach(a => { %>
+                <div class="col-sm-6 col-md-4 mb-2">
+                  <label class="form-check small">
+                    <input class="form-check-input" type="checkbox"
+                           name="amenity_ids" value="<%= a.id %>"
+                           <%= (o.amenity_ids && Array.isArray(o.amenity_ids) && o.amenity_ids.includes(String(a.id))) ? 'checked' : '' %> >
+                    <span class="form-check-label"><%= a.name %></span>
+                  </label>
+                </div>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <p class="vendor-muted">No amenities configured yet; you can add them later from admin.</p>
+          <% } %>
+
+          <!-- INITIAL ROOM TYPE -->
+          <div class="vendor-section-label mt-3">Rooms</div>
+          <div class="vendor-section-title">Primary room type</div>
+          <p class="vendor-muted mb-2">
+            Configure the first room type and base price. You can add more types later.
+          </p>
+
+          <div class="mb-3">
+            <label class="form-label small">Room type name</label>
+            <input type="text" name="room_type_name" class="form-control"
+                   value="<%= o.room_type_name || '' %>" placeholder="Deluxe Room, Standard AC, Suite, etc." required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Room type description (optional)</label>
+            <textarea name="room_type_description" class="form-control"
+                      placeholder="Describe this room type, view, bed type, inclusions."><%= o.room_type_description || '' %></textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">Max guests</label>
+              <input type="number" min="1" name="max_guests" class="form-control"
+                     value="<%= o.max_guests || 2 %>">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">Area (sq. m) (optional)</label>
+              <input type="number" step="0.1" name="area_sq_m" class="form-control"
+                     value="<%= o.area_sq_m || '' %>">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">Base price per night (₹)</label>
+              <input type="number" step="0.01" min="0" name="base_price" class="form-control"
+                     value="<%= o.base_price || '' %>" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">Currency</label>
+              <select name="currency" class="form-select">
+                <option value="INR" <%= (o.currency || 'INR') === 'INR' ? 'selected' : '' %>>INR</option>
+              </select>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">No. of rooms to create</label>
+              <input type="number" min="1" max="200" name="room_count" class="form-control"
+                     value="<%= o.room_count || 5 %>">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label small">Start room number from</label>
+              <input type="text" name="room_number_prefix" class="form-control"
+                     placeholder="e.g., 101" value="<%= o.room_number_prefix || '101' %>">
+            </div>
+          </div>
+
+          <!-- ROOM IMAGES -->
+          <div class="vendor-section-label mt-3">Room images (optional)</div>
+          <p class="vendor-muted mb-2">
+            Upload example photos for this room type. These can be reused for all generated rooms.
+          </p>
+
+          <div class="mb-3">
+            <label class="form-label small">Room photos</label>
+            <input
+              type="file"
+              name="room_images"
+              class="form-control"
+              accept="image/*"
+              multiple
+            >
+          </div>
+
+          <p class="vendor-muted mb-2">
+            We’ll create the given number of rooms under this room type
+            (e.g., 101, 102, 103… based on starting number).
+          </p>
+
+          <div class="form-check mb-3 mt-2">
+            <input class="form-check-input" type="checkbox" id="hotelVisibility"
+                   name="visible" value="1" checked>
+            <label class="form-check-label vendor-muted" for="hotelVisibility">
+              Make this property active for search (admin may still need to verify).
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">
+            Save hotel & rooms
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function(){
+    const form = document.getElementById('addHotelForm');
+    form?.addEventListener('submit', function(){
+      const btn = this.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
+    });
+  })();
+</script>
